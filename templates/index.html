@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="transcriptEl"></div>
+    <input type="text" id="input" autocomplete="off">
+    <button id="send">Send</button>
+
+    <script>
+        var socket = io();
+
+        document.getElementById('send').onclick = function () {
+            socket.emit('transcribe_audio');
+            document.getElementById('input').value = '';
+        };
+
+        socket.on('transcript', function (transcript) {
+            var node = document.createElement("p");
+            var textnode = document.createTextNode(transcript);
+            node.appendChild(textnode);
+            document.getElementById("transcriptEl").appendChild(node);
+        });
+    </script>
+</body>
+
+</html>
