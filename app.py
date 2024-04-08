@@ -3,6 +3,9 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import whisper
 
+from pydub import AudioSegment  
+from pydub.playback import play  
+
 app = Flask(__name__)
 socketio = SocketIO(app)
 
