@@ -1,3 +1,4 @@
+# Flask app code
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import whisper
@@ -16,17 +17,12 @@ def transcribe_and_send():
     send_transcript(transcript)
     print(transcript)
 
-# @socketio.on('message')
-# def handle_message(message):
-#     print('Received message: ' + message)
-#     emit('message', message, broadcast=True)
-
 def send_transcript(transcript):
-    emit('transcript', transcript, broadcast=True)
+    emit('transcript', transcript)  # Broadcasting isn't necessary here
 
-@socketio.on('transcribe_audio')
+@socketio.on('transcribe_audio')  # Listening for 'transcribe_audio' event from client
 def handle_transcribe_audio():
     transcribe_and_send()
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port="5000", debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

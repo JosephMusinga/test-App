@@ -1,13 +1,12 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time Chat</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 </head>
-
 <body>
     <div id="transcriptEl"></div>
     <input type="text" id="input" autocomplete="off">
@@ -17,11 +16,11 @@
         var socket = io();
 
         document.getElementById('send').onclick = function () {
-            socket.emit('transcribe_audio');
+            socket.emit('transcribe_audio'); // Emitting 'transcribe_audio' event
             document.getElementById('input').value = '';
         };
 
-        socket.on('transcript', function (transcript) {
+        socket.on('transcript', function (transcript) {  // Listening for 'transcript' event from server
             var node = document.createElement("p");
             var textnode = document.createTextNode(transcript);
             node.appendChild(textnode);
@@ -29,5 +28,4 @@
         });
     </script>
 </body>
-
 </html>
