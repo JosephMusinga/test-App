@@ -12,7 +12,7 @@ def login():
 frame = customtkinter.CTkFrame(master=root)
 frame.pack(pady=20, padx=60, fill="both", expand=True)
 
-label = customtkinter.CTkLabel(master=frame, text="Login CHeck",)
+label = customtkinter.CTkLabel(master=frame, text="Login CHeck", font=customtkinter.CTkFont(family="Times New Roman", size= 30))
 label.pack(pady=12, padx=10)
 
 entry1 = customtkinter.CTkEntry(master=frame, placeholder_text="Username")
