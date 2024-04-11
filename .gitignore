@@ -1,3 +1,4 @@
 env/
-src/input.mp4
-src/audio-input.wav
+src/*.mp4
+src/*.wav
+src/*.srt
