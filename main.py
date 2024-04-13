@@ -1,7 +1,11 @@
 import customtkinter  # Import CustomTkinter
 from pages.main_page import MainPage
+from pages.generate_captions import GenerateCaptions
+from pages.customize_captions import CustomizeCaptions
 
-customtkinter.set_appearance_mode('light')
+
+
+customtkinter.set_appearance_mode('dark')
 customtkinter.set_default_color_theme('green')
 
 class CaptionApp(customtkinter.CTk):
@@ -12,9 +16,9 @@ class CaptionApp(customtkinter.CTk):
 
         # Create page frames (instances of your page classes from pages/)
         self.main_page = MainPage(self)
-        # self.page1 = Page1(self)
-        # self.page2 = Page2(self)
-
+        self.generate_captions = GenerateCaptions(self)
+        self.customize_captions = CustomizeCaptions(self)
+        
         # Initially show the main page
         self.show_frame(self.main_page)
 
@@ -27,7 +31,8 @@ class CaptionApp(customtkinter.CTk):
 
     def show_frame(self, frame):
         frame.pack(fill="both", expand=True)
-        frame.lift()  # Raise the frame to the top
+        frame.place(relwidth=1, relheight=1)
+
 
 if __name__ == "__main__":
     app = CaptionApp()
