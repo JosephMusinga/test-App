@@ -2,3 +2,4 @@ env/
 src/*.mp4
 src/*.wav
 src/*.srt
+src/*.ass
