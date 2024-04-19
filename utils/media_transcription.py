@@ -1,4 +1,3 @@
-import subprocess
 import time
 import math
 import ffmpeg
@@ -62,7 +61,6 @@ def format_time(seconds):
 # Function to generate subtitle file from transcribed segments
 def generate_subtitle_file(language, segments):
     subtitle_file = f"sub-{input_video_name}.{language}.srt"
-    subtitle_file1 = f"sub-{input_video_name}.{language}.ass"
     text = ""
     # Generate subtitle text with segment start and end times
     for index, segment in enumerate(segments):
@@ -76,16 +74,7 @@ def generate_subtitle_file(language, segments):
     f = open(subtitle_file, "w")
     f.write(text)
     f.close()
-
-    result = convert_subtitle_format(subtitle_file, subtitle_file1)
-    return result
-    
-
-def convert_subtitle_format(input_file, output_file):
-        command = ["ffmpeg", "-i", input_file, output_file]
-        subprocess.run(command, check=True)
-    
-        
+    return subtitle_file
 
 # Function to add subtitle to the video
 def add_subtitle_to_video(soft_subtitle, subtitle_file,  subtitle_language):
@@ -122,10 +111,10 @@ def run():
         segments=segments
     )
     # Add subtitle to the input video
-    # add_subtitle_to_video(
-    #     soft_subtitle=True,
-    #     subtitle_file=subtitle_file,
-    #     subtitle_language=language
-    # )
+    add_subtitle_to_video(
+        soft_subtitle=True,
+        subtitle_file=subtitle_file,
+        subtitle_language=language
+    )
     
 run()

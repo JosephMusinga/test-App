@@ -22,13 +22,6 @@ class CaptionApp(customtkinter.CTk):
         # Initially show the main page
         self.show_frame(self.main_page)
 
-        # Define navigation buttons (replace with your button creation logic)
-        # self.main_page_button = customtkinter.CTkButton(
-        #     self, text="Main Page", command=lambda: self.show_frame(self.main_page)
-        # )
-        # self.main_page_button.pack()
-        # # ... buttons for other pages
-
     def show_frame(self, frame):
         frame.pack(fill="both", expand=True)
         frame.place(relwidth=1, relheight=1)
