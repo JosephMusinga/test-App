@@ -1,32 +1,21 @@
-import customtkinter  # Import CustomTkinter
-from pages.main_page import MainPage
-from pages.generate_captions import GenerateCaptions
-from pages.customize_captions import CustomizeCaptions
+# import the Flask library
+from flask import Flask, render_template
 
+app = Flask(__name__)
+ 
+ 
+@app.route('/')
+def home():
+        return render_template('index.html')
 
+@app.route('/transcribe')
+def transcribe():
+        return render_template('transcribe.html')
 
-customtkinter.set_appearance_mode('dark')
-customtkinter.set_default_color_theme('green')
+@app.route('/customize')
+def customize():
+        return render_template('customize.html')
+ 
 
-class CaptionApp(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
-        self.title("Caption Generator")
-        self.geometry("800x450")
-
-        # Create page frames (instances of your page classes from pages/)
-        self.main_page = MainPage(self)
-        self.generate_captions = GenerateCaptions(self)
-        self.customize_captions = CustomizeCaptions(self)
-        
-        # Initially show the main page
-        self.show_frame(self.main_page)
-
-    def show_frame(self, frame):
-        frame.pack(fill="both", expand=True)
-        frame.place(relwidth=1, relheight=1)
-
-
-if __name__ == "__main__":
-    app = CaptionApp()
-    app.mainloop()
+if(__name__ == "__main__"):
+    app.run(debug=True)

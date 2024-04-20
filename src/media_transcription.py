@@ -77,14 +77,13 @@ def generate_subtitle_file(language, segments):
     f.write(text)
     f.close()
 
-    result = convert_subtitle_format(subtitle_file, subtitle_file1)
-    return result
+    # result = convert_subtitle_format(subtitle_file, subtitle_file1)
+    return subtitle_file
     
 
 def convert_subtitle_format(input_file, output_file):
         command = ["ffmpeg", "-i", input_file, output_file]
         subprocess.run(command, check=True)
-    
         
 
 # Function to add subtitle to the video
@@ -95,7 +94,7 @@ def add_subtitle_to_video(soft_subtitle, subtitle_file,  subtitle_language):
     subtitle_input_stream = ffmpeg.input(subtitle_file)
     # Define output video file name
     output_video = f"output-{input_video_name}.mp4"
-    subtitle_track_title = subtitle_file.replace(".srt", "")
+    subtitle_track_title = subtitle_file.replace(".ass", "")
     # Add soft subtitles if specified
     if soft_subtitle:
         stream = ffmpeg.output(
@@ -122,10 +121,10 @@ def run():
         segments=segments
     )
     # Add subtitle to the input video
-    # add_subtitle_to_video(
-    #     soft_subtitle=True,
-    #     subtitle_file=subtitle_file,
-    #     subtitle_language=language
-    # )
+    add_subtitle_to_video(
+        soft_subtitle=True,
+        subtitle_file=subtitle_file,
+        subtitle_language=language
+    )
     
 run()
