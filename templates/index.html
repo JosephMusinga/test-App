@@ -1,11 +1,17 @@
-<html>
-<body>	 
-	<form action = "http://localhost:5000/login" method = "post">
-		
+<!DOCTYPE html>
+<html lang="en">
 
-<p>Home</p>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
 
+<body>
+	<p>Home</p>
+	<a href="{{ url_for('transcribe') }}">Generate Captions</a>
 
-	</form>	 
+	<a href="">Transcribe Live</a>
 </body>
+
 </html>
