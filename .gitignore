@@ -4,3 +4,5 @@ src/*.wav
 src/*.srt
 src/*.ass
 uploads/
+*wav
+*mp4
