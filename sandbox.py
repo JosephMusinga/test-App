@@ -8,7 +8,7 @@ import whisper
 
 def extract_audio(input_video):
    
-    input_video_name = input_video.replace(".mxp4", "")
+    input_video_name = input_video.replace(".mp4", "")
     extracted_audio = f"audio-{input_video_name}.wav"
     # if not os.path.exists(input_video):
     #   print("Error: Input video does not exist at all.")
