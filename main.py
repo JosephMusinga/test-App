@@ -6,6 +6,19 @@ import subprocess
 import ffmpeg
 import whisper
 
+def display_transcript(transcript_text):
+    # Create a Toplevel window
+    toplevel = customtkinter.CTkToplevel()
+    toplevel.geometry("500x400")
+    toplevel.title("Transcript")
+
+    # Create a text widget to display the transcript
+    transcript_label = customtkinter.CTkLabel(toplevel, text=transcript_text, text_color="white")
+    transcript_label.pack(padx=20, pady=20)
+
+    # Run the Toplevel window
+    toplevel.mainloop()
+
 def format_time(seconds):
     # Convert seconds to hours, minutes, and milliseconds
     hours = math.floor(seconds / 3600)
@@ -119,16 +132,27 @@ class App(customtkinter.CTk):
         language = result.get("language", None)
         print("Transcription language:", language)
         segments = list(segments)
+        
+        # Delete the audio file after processing
+        try:
+            os.remove(audio_file)
+            print(f"Audio file deleted: {audio_file}")
+        except FileNotFoundError:
+            print(f"Audio file not found: {audio_file} (might have already been deleted)")
+
 
         # Print or display the transcript (modify as needed)
         transcript_text = ""
         for segment in segments:
             transcript_text += f"[%.2fs -> %.2fs] {segment['text']}\n" % (segment["start"], segment["end"])
-        self.label.configure(text=transcript_text)  # Update label with transcript
+        display_transcript(transcript_text) # Update label with transcript
 
+        
         # Generate subtitle file
         subtitle_file = generate_subtitle_file(language, segments, self.copied_video)
         print(f"Subtitle file generated: {subtitle_file}")
+        
+         
 
         # Return language and segments (optional for further processing)
         return language, segments, self.copied_video
