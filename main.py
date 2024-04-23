@@ -1,9 +1,42 @@
+import math
 import os
 import customtkinter
 import shutil
 import subprocess
 import ffmpeg
 import whisper
+
+def format_time(seconds):
+    # Convert seconds to hours, minutes, and milliseconds
+    hours = math.floor(seconds / 3600)
+    seconds %= 3600
+    minutes = math.floor(seconds / 60)
+    seconds %= 60
+    milliseconds = round((seconds - math.floor(seconds)) * 1000)
+    seconds = math.floor(seconds)
+    # Format time string
+    formatted_time = f"{hours:02d}:{minutes:02d}:{seconds:01d},{milliseconds:03d}"
+    return formatted_time
+
+# Function to generate subtitle file from transcribed segments
+def generate_subtitle_file(language, segments, video_name):
+    subtitle_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.srt"  
+    text = ""
+    # Generate subtitle text with segment start and end times
+    for index, segment in enumerate(segments):
+        segment_start = format_time(segment["start"])  # Accessing start time using dictionary key
+        segment_end = format_time(segment["end"])  # Accessing end time using dictionary key
+        text += f"{str(index+1)} \n"
+        text += f"{segment_start} --> {segment_end} \n"
+        text += f"{segment['text']} \n"  # Accessing text using dictionary key
+        text += "\n"
+    # Write subtitle text to file
+    f = open(subtitle_file, "w")
+    f.write(text)
+    f.close()
+
+    # result = convert_subtitle_format(subtitle_file, subtitle_file1)  # Optional for ASS format conversion
+    return subtitle_file
 
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
@@ -67,7 +100,7 @@ class App(customtkinter.CTk):
         return extracted_audio
 
     def transcribe(self):
-        audio_file = self.extract_audio()  # Extract audio first
+        audio_file = self.extract_audio()
         if audio_file is None:
             self.label.configure(text="Error: Audio extraction failed or no video selected.")
             return
@@ -75,7 +108,7 @@ class App(customtkinter.CTk):
         # Check if audio file exists
         if not os.path.exists(audio_file):
             print("Error: Audio file does not exist.")
-            return None
+            return
 
         model = whisper.load_model("base")
         # Get the result from transcribe method
@@ -93,8 +126,14 @@ class App(customtkinter.CTk):
             transcript_text += f"[%.2fs -> %.2fs] {segment['text']}\n" % (segment["start"], segment["end"])
         self.label.configure(text=transcript_text)  # Update label with transcript
 
+        # Generate subtitle file
+        subtitle_file = generate_subtitle_file(language, segments, self.copied_video)
+        print(f"Subtitle file generated: {subtitle_file}")
+
         # Return language and segments (optional for further processing)
-        return language, segments
+        return language, segments, self.copied_video
+
+        
 
 app = App()
 app.mainloop()
