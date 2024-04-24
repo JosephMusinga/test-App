@@ -33,8 +33,8 @@ def format_time(seconds):
 
 # Function to generate subtitle file from transcribed segments
 def generate_subtitle_file(language, segments, video_name):
-    subtitle_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.srt"  
-    subtitle_file1 = f"sub-{os.path.splitext(video_name)[0]}.{language}.ass"  
+    srt_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.srt"  
+    ass_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.ass"  
     
     text = ""
     # Generate subtitle text with segment start and end times
@@ -46,14 +46,20 @@ def generate_subtitle_file(language, segments, video_name):
         text += f"{segment['text']} \n"  # Accessing text using dictionary key
         text += "\n"
     # Write subtitle text to file
-    f = open(subtitle_file, "w")
+    f = open(srt_file, "w")
     f.write(text)
     f.close()
     
-    command = ["ffmpeg", "-i", subtitle_file, subtitle_file1]
+    command = ["ffmpeg", "-i", srt_file, ass_file]
     subprocess.run(command, check=True)
+    
+    try:
+        os.remove(srt_file)
+        print(f"Temporary audio file deleted: {srt_file}")
+    except FileNotFoundError:
+        print(f"Audio file not found: {srt_file} (might have already been deleted)")
 
-    return subtitle_file1
+    return ass_file
 
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
