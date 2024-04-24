@@ -34,6 +34,8 @@ def format_time(seconds):
 # Function to generate subtitle file from transcribed segments
 def generate_subtitle_file(language, segments, video_name):
     subtitle_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.srt"  
+    subtitle_file1 = f"sub-{os.path.splitext(video_name)[0]}.{language}.ass"  
+    
     text = ""
     # Generate subtitle text with segment start and end times
     for index, segment in enumerate(segments):
@@ -47,9 +49,11 @@ def generate_subtitle_file(language, segments, video_name):
     f = open(subtitle_file, "w")
     f.write(text)
     f.close()
+    
+    command = ["ffmpeg", "-i", subtitle_file, subtitle_file1]
+    subprocess.run(command, check=True)
 
-    # result = convert_subtitle_format(subtitle_file, subtitle_file1)  # Optional for ASS format conversion
-    return subtitle_file
+    return subtitle_file1
 
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
@@ -136,10 +140,12 @@ class App(customtkinter.CTk):
         # Delete the audio file after processing
         try:
             os.remove(audio_file)
-            print(f"Audio file deleted: {audio_file}")
+            print(f"Temporary audio file deleted: {audio_file}")
         except FileNotFoundError:
             print(f"Audio file not found: {audio_file} (might have already been deleted)")
 
+        subtitle_file = generate_subtitle_file(language, segments, self.copied_video)
+        print(f"Subtitle file generated: {subtitle_file}")
 
         # Print or display the transcript (modify as needed)
         transcript_text = ""
@@ -148,13 +154,6 @@ class App(customtkinter.CTk):
         display_transcript(transcript_text) # Update label with transcript
 
         
-        # Generate subtitle file
-        subtitle_file = generate_subtitle_file(language, segments, self.copied_video)
-        print(f"Subtitle file generated: {subtitle_file}")
-        
-         
-
-        # Return language and segments (optional for further processing)
         return language, segments, self.copied_video
 
         
