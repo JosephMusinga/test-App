@@ -18,8 +18,17 @@ def pick_color(button, color_option):
 
 def customize_transcript():
     toplevel2 = customtkinter.CTkToplevel()
-    toplevel2.geometry("500x400")
     toplevel2.title("Customize Captions")
+    
+    #customize window startup positon on screen
+    w = 400 
+    h = 400
+    
+    ws = toplevel2.winfo_screenwidth() # width of the screen
+    hs = toplevel2.winfo_screenheight()
+    x = (ws/2) - (w/2)
+    y = (hs/2) - (h/2)
+    toplevel2.geometry('%dx%d+%d+%d' % (w, h, x, y))
     
     font_styles = ["Arial", "Times New Roman", "Courier New", "Verdana"]
     font_style_var = tkinter.StringVar(toplevel2)
@@ -124,7 +133,7 @@ def generate_subtitle_file(language, segments, video_name):
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.geometry("500x400")
+        self.geometry("450x600")
 
         self.button_1 = customtkinter.CTkButton(self, text="Open File", command=self.open_file)
         self.button_1.pack(side="top", padx=20, pady=20)
