@@ -5,6 +5,63 @@ import shutil
 import subprocess
 import ffmpeg
 import whisper
+import tkinter
+
+def customize_transcript():
+    toplevel2 = customtkinter.CTkToplevel()
+    toplevel2.geometry("500x400")
+    toplevel2.title("Customize Captions")
+    
+    font_styles = ["Arial", "Times New Roman", "Courier New", "Verdana"]
+    font_style_var = tkinter.StringVar(toplevel2)
+    font_style_label = customtkinter.CTkLabel(master=toplevel2, text="Font Style:")
+    font_style_label.pack()
+    font_style_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_styles, variable=font_style_var)
+    font_style_combobox.pack()
+
+    # Font Size Combobox
+    font_sizes = range(8, 36)  # Font sizes from 8 to 35
+    font_size_var = tkinter.IntVar(toplevel2)
+    font_size_label = customtkinter.CTkLabel(master=toplevel2, text="Font Size:")
+    font_size_label.pack()
+    font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_sizes, variable=font_size_var)
+    font_size_combobox.pack()
+    
+
+    # Bold & Italic Radio Buttons
+    bold_var = tkinter.BooleanVar(toplevel2)
+    italic_var = tkinter.BooleanVar(toplevel2)
+    bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Bold")
+    bold_radio.pack(padx=5, pady=5)
+    italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Italic")
+    italic_radio.pack(padx=5, pady=5)
+
+    # Color Input Fields
+    primary_color_label = customtkinter.CTkLabel(master=toplevel2, text="Primary Color:")
+    primary_color_label.pack(padx=5, pady=5)
+    primary_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
+    primary_color_entry.pack(padx=5, pady=5)
+
+    # secondary_color_label = customtkinter.CTkLabel(master=toplevel2, text="Secondary Color (Optional):")
+    # secondary_color_label.pack(padx=5, pady=5)
+    # secondary_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
+    # secondary_color_entry.pack(padx=5, pady=5)
+
+    # outline_color_label = customtkinter.CTkLabel(master=toplevel2, text="Outline Color (Optional):")
+    # outline_color_label.pack(padx=5, pady=5)
+    # outline_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
+    # outline_color_entry.pack(padx=5, pady=5)
+
+    # back_color_label = customtkinter.CTkLabel(master=toplevel2, text="Back Color (Optional):")
+    # back_color_label.pack(padx=5, pady=5)
+    # back_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
+    # back_color_entry.pack(padx=5, pady=5)
+
+    # Modify Button (for illustration only)
+    modify_button = customtkinter.CTkButton(master=toplevel2, text="Modify Style (No action yet)")
+    modify_button.pack(padx=5, pady=5)
+    
+    
 
 def display_transcript(transcript_text):
     # Create a Toplevel window
@@ -74,6 +131,9 @@ class App(customtkinter.CTk):
 
         self.button_2 = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe)
         self.button_2.pack(side="top", padx=20, pady=20)
+        
+        self.button_3 = customtkinter.CTkButton(self, text="Customize Captions", command=customize_transcript)
+        self.button_3.pack(side="top", padx=20, pady=20)
 
         self.toplevel_window = None
         self.copied_video = None  # Track the copied video path

@@ -1,130 +1,74 @@
-import subprocess
-import time
-import math
-import ffmpeg
-import os
+def get_user_input():
+  """
+  Prompts the user for font style, size, and other style options.
+  """
+  font_style = input("Enter desired font style (e.g., Arial, Times New Roman): ")
+  font_size = int(input("Enter desired font size (integer): "))
+  modify_bold = input("Modify bold (y/n)? ").lower() == 'y'
+  modify_italic = input("Modify italic (y/n)? ").lower() == 'y'
+  primary_color = pick_color("Enter desired primary color (e.g., white): ")
+  secondary_color = pick_color("Enter desired secondary color (optional, press enter to skip): ")
+  outline_color = pick_color("Enter desired outline color (optional, press enter to skip): ")
+  back_color = pick_color("Enter desired background color (optional, press enter to skip): ")
+  return font_style, font_size, modify_bold, modify_italic, primary_color, secondary_color, outline_color, back_color
 
-import whisper
+def pick_color(message):
+  """
+  Prompts the user for a color and returns it in the format &Hrrggbb.
+  """
+  while True:
+    color = input(message).strip().lower()
+    if not color:
+      return None  # User skipped color selection
+    try:
+      # Validate and convert color to hex format with leading zeroes (e.g., #ffffff -> &Hffffff)
+      if color.startswith("#"):
+        color = color[1:]
+      color = format(int(color, 16), '06x').upper()
+      return "&H" + color
+    except ValueError:
+      print("Invalid color format. Please enter a valid color name or hex code (e.g., white, #ffffff).")
 
-# Define input video file and its name
-input_video = "martin.mp4"
-input_video_name = input_video.replace(".mp4", "")
+def modify_style_section(text, font_style, font_size, modify_bold, modify_italic, primary_color, secondary_color, outline_color, back_color):
+  """
+  Modifies the [V4+ Styles] section in the text with the user-provided style and size.
+  """
+  lines = text.splitlines()
+  for i, line in enumerate(lines):
+    if line.startswith("Style: Default,"):
+      # Split the style definition
+      style_parts = line.split(",")
+      # Update style properties
+      style_parts[1] = f'"{font_style}"'  # Font style
+      style_parts[2] = str(font_size)  # Font size
+      if modify_bold:
+        style_parts[7] = str(int(input("Enter desired bold value (0 or 1): ")))  # Bold
+      if modify_italic:
+        style_parts[8] = str(int(input("Enter desired italic value (0 or 1): ")))  # Italic
+      style_parts[4] = primary_color or style_parts[4]  # Primary color (use existing if not provided)
+      style_parts[5] = secondary_color or style_parts[5]  # Secondary color (use existing if not provided)
+      style_parts[6] = outline_color or style_parts[6]  # Outline color (use existing if not provided)
+      style_parts[9] = back_color or style_parts[9]  # Back color (use existing if not provided)
+      # Join the modified parts back with comma separators
+      lines[i] = ",".join(style_parts)
+      break  # Stop after modifying the first occurrence
+  return "\n".join(lines)
 
-# Function to extract audio from the input video file
-def extract_audio():
-    extracted_audio = f"audio-{input_video_name}.wav"
-    # Check if the input video exists
-    if not os.path.exists(input_video):
-        print("Error: Input video does not exist.")
-        return None
-    # Use ffmpeg to extract audio from the video
-    stream = ffmpeg.input(input_video)
-    stream = ffmpeg.output(stream, extracted_audio)
-    ffmpeg.run(stream, overwrite_output=True)
-    # Check if audio extraction is successful
-    if not os.path.exists(extracted_audio):
-        print("Error: Audio extraction failed.")
-        return None
-    return extracted_audio
+def main():
+  """
+  Reads the text file, prompts user for input, modifies the style section, and writes the modified text back to the file.
+  """
+  with open("sub-martin.en.ass", "r") as f:
+    text = f.read()
+  
+  font_style, font_size, modify_bold, modify_italic, primary_color, secondary_color, outline_color, back_color = get_user_input()
+  modified_text = modify_style_section(text, font_style, font_size, modify_bold, modify_italic, primary_color, secondary_color, outline_color, back_color)
+  
+  
+  with open("custom_captions.ass", "w") as f:
+    f.write(modified_text)
+  
+  print("Successfully modified the font style and size in your .ass file!")
 
-# Function to transcribe the audio
-def transcribe(audio):
-    if not os.path.exists(audio):
-        print("Error: Audio file does not exist.")
-        return None
-    model = whisper.load_model("base")
-    # Get the result from transcribe method
-    result = model.transcribe(audio)
-    # Extract segments from the result
-    segments = result["segments"]  # Assuming segments are stored in the 'segments' key
-    # Access language if available
-    language = result.get("language", None)
-    print("Transcription language:", language)
-    segments = list(segments)
-    # Print each segment with its start and end times and text
-    for segment in segments:
-        print("[%.2fs -> %.2fs] %s" % (segment["start"], segment["end"], segment["text"]))
-    return language, segments
-
-# Function to format time in the required format
-def format_time(seconds):
-    # Convert seconds to hours, minutes, and milliseconds
-    hours = math.floor(seconds / 3600)
-    seconds %= 3600
-    minutes = math.floor(seconds / 60)
-    seconds %= 60
-    milliseconds = round((seconds - math.floor(seconds)) * 1000)
-    seconds = math.floor(seconds)
-    # Format time string
-    formatted_time = f"{hours:02d}:{minutes:02d}:{seconds:01d},{milliseconds:03d}"
-    return formatted_time
-
-# Function to generate subtitle file from transcribed segments
-def generate_subtitle_file(language, segments):
-    subtitle_file = f"sub-{input_video_name}.{language}.srt"
-    subtitle_file1 = f"sub-{input_video_name}.{language}.ass"
-    text = ""
-    # Generate subtitle text with segment start and end times
-    for index, segment in enumerate(segments):
-        segment_start = format_time(segment["start"])  # Accessing start time using dictionary key
-        segment_end = format_time(segment["end"])  # Accessing end time using dictionary key
-        text += f"{str(index+1)} \n"
-        text += f"{segment_start} --> {segment_end} \n"
-        text += f"{segment['text']} \n"  # Accessing text using dictionary key
-        text += "\n"
-    # Write subtitle text to file
-    f = open(subtitle_file, "w")
-    f.write(text)
-    f.close()
-
-    # result = convert_subtitle_format(subtitle_file, subtitle_file1)
-    return subtitle_file
-    
-
-def convert_subtitle_format(input_file, output_file):
-        command = ["ffmpeg", "-i", input_file, output_file]
-        subprocess.run(command, check=True)
-        
-
-# Function to add subtitle to the video
-def add_subtitle_to_video(soft_subtitle, subtitle_file,  subtitle_language):
-    # Define input video stream
-    video_input_stream = ffmpeg.input(input_video)
-    # Define subtitle input stream
-    subtitle_input_stream = ffmpeg.input(subtitle_file)
-    # Define output video file name
-    output_video = f"output-{input_video_name}.mp4"
-    subtitle_track_title = subtitle_file.replace(".ass", "")
-    # Add soft subtitles if specified
-    if soft_subtitle:
-        stream = ffmpeg.output(
-            video_input_stream, subtitle_input_stream, output_video, **{"c": "copy", "c:s": "mov_text"},
-            **{"metadata:s:s:0": f"language={subtitle_language}",
-            "metadata:s:s:0": f"title={subtitle_track_title}"}
-        )
-        ffmpeg.run(stream, overwrite_output=True)
-    else:
-        # Add hard subtitles
-        stream = ffmpeg.output(video_input_stream, output_video,
-                               vf=f"subtitles={subtitle_file}")
-        ffmpeg.run(stream, overwrite_output=True)    
-
-# Function to run the entire process
-def run():
-    # Extract audio from the input video
-    extracted_audio = extract_audio()
-    # Transcribe the extracted audio
-    language, segments = transcribe(audio=extracted_audio)
-    # Generate subtitle file from transcribed segments
-    subtitle_file = generate_subtitle_file(
-        language=language,
-        segments=segments
-    )
-    # Add subtitle to the input video
-    add_subtitle_to_video(
-        soft_subtitle=True,
-        subtitle_file=subtitle_file,
-        subtitle_language=language
-    )
-    
-run()
+if __name__ == "__main__":
+  main()
