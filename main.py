@@ -1,11 +1,20 @@
 import math
 import os
 import customtkinter
+from CTkColorPicker import *
 import shutil
 import subprocess
 import ffmpeg
 import whisper
 import tkinter
+
+def pick_color(button, color_option):
+    
+    pick_color = AskColor() # open the color picker
+    color = pick_color.get()
+    button.configure(**{color_option: color})
+
+    
 
 def customize_transcript():
     toplevel2 = customtkinter.CTkToplevel()
@@ -20,11 +29,12 @@ def customize_transcript():
     font_style_combobox.pack()
 
     # Font Size Combobox
-    font_sizes = range(8, 36)  # Font sizes from 8 to 35
-    font_size_var = tkinter.IntVar(toplevel2)
+    def font_size_list():
+        return [str(i) for i in range(8, 31)]
+            
     font_size_label = customtkinter.CTkLabel(master=toplevel2, text="Font Size:")
     font_size_label.pack()
-    font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_sizes, variable=font_size_var)
+    font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_size_list())
     font_size_combobox.pack()
     
 
@@ -37,25 +47,18 @@ def customize_transcript():
     italic_radio.pack(padx=5, pady=5)
 
     # Color Input Fields
-    primary_color_label = customtkinter.CTkLabel(master=toplevel2, text="Primary Color:")
-    primary_color_label.pack(padx=5, pady=5)
-    primary_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
-    primary_color_entry.pack(padx=5, pady=5)
+    
+    primary_color_button = customtkinter.CTkButton(master=toplevel2, text="PrimaryColor", command=lambda: pick_color(primary_color_button, 'fg_color'))
+    primary_color_button.pack(padx=5, pady=5)
 
-    # secondary_color_label = customtkinter.CTkLabel(master=toplevel2, text="Secondary Color (Optional):")
-    # secondary_color_label.pack(padx=5, pady=5)
-    # secondary_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
-    # secondary_color_entry.pack(padx=5, pady=5)
+    secondary_color_button = customtkinter.CTkButton(master=toplevel2, text="Secondary Color", command=lambda: pick_color(secondary_color_button, 'fg_color'))
+    secondary_color_button.pack(padx=5, pady=5)
 
-    # outline_color_label = customtkinter.CTkLabel(master=toplevel2, text="Outline Color (Optional):")
-    # outline_color_label.pack(padx=5, pady=5)
-    # outline_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
-    # outline_color_entry.pack(padx=5, pady=5)
-
-    # back_color_label = customtkinter.CTkLabel(master=toplevel2, text="Back Color (Optional):")
-    # back_color_label.pack(padx=5, pady=5)
-    # back_color_entry = customtkinter.CTkEntry(master=toplevel2, width=10)
-    # back_color_entry.pack(padx=5, pady=5)
+    outline_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=lambda: pick_color(outline_color_button, 'fg_color'))
+    outline_color_button.pack(padx=5, pady=5)
+    
+    background_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=lambda: pick_color(background_color_button, 'fg_color'))
+    outline_color_button.pack(padx=5, pady=5)
 
     # Modify Button (for illustration only)
     modify_button = customtkinter.CTkButton(master=toplevel2, text="Modify Style (No action yet)")
