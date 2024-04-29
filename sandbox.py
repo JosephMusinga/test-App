@@ -54,6 +54,7 @@ def modify_style_section(text, font_style, font_size, modify_bold, modify_italic
       break  # Stop after modifying the first occurrence
   return "\n".join(lines)
 
+
 def main():
   """
   Reads the text file, prompts user for input, modifies the style section, and writes the modified text back to the file.

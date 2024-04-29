@@ -12,8 +12,10 @@ def pick_color(button, color_option):
     
     pick_color = AskColor() # open the color picker
     color = pick_color.get()
+    print(color)
     button.configure(**{color_option: color})
-
+    
+    return color
     
 
 def customize_transcript():
@@ -30,22 +32,24 @@ def customize_transcript():
     y = (hs/2) - (h/2)
     toplevel2.geometry('%dx%d+%d+%d' % (w, h, x, y))
     
+    #costomization options
+    
     font_styles = ["Arial", "Times New Roman", "Courier New", "Verdana"]
     font_style_var = tkinter.StringVar(toplevel2)
     font_style_label = customtkinter.CTkLabel(master=toplevel2, text="Font Style:")
     font_style_label.pack()
     font_style_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_styles, variable=font_style_var)
     font_style_combobox.pack()
-
-    # Font Size Combobox
+   
     def font_size_list():
         return [str(i) for i in range(8, 31)]
-            
+    
+     # Font Size Combobox
     font_size_label = customtkinter.CTkLabel(master=toplevel2, text="Font Size:")
     font_size_label.pack()
-    font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_size_list())
+    font_size_var = tkinter.StringVar(toplevel2)  # Define font_size_var
+    font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_size_list(), textvariable=font_size_var)  # Pass font_size_var to textvariable
     font_size_combobox.pack()
-    
 
     # Bold & Italic Radio Buttons
     bold_var = tkinter.BooleanVar(toplevel2)
@@ -54,9 +58,50 @@ def customize_transcript():
     bold_radio.pack(padx=5, pady=5)
     italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Italic")
     italic_radio.pack(padx=5, pady=5)
+    
+    def modify_style_section(text, font_style, font_size, bold_var, italic_var, primary_color, secondary_color, outline_color):
+        """
+        Modifies the [V4+ Styles] section in the text with the user-provided style and size.
+        """
+        lines = text.splitlines()
+        for i, line in enumerate(lines):
+            if line.startswith("Style: Default,"):
+                # Split the style definition
+                style_parts = line.split(",")
+                # Update style properties
+                style_parts[1] = font_style  # Font style
+                style_parts[2] = str(font_size)  # Font size
+                if bold_var.get():
+                    style_parts[7] = str(int(input("Enter desired bold value (0 or 1): ")))  # Bold
+                if italic_var.get():
+                    style_parts[8] = str(int(input("Enter desired italic value (0 or 1): ")))  # Italic
+                style_parts[4] = primary_color or style_parts[4]  # Primary color (use existing if not provided)
+                style_parts[5] = secondary_color or style_parts[5]  # Secondary color (use existing if not provided)
+                style_parts[6] = outline_color or style_parts[6]  # Outline color (use existing if not provided)
+                # style_parts[9] =  or style_parts[9]  # Back color (use existing if not provided)
+                # Join the modified parts back with comma separators
+                lines[i] = ",".join(style_parts)
+                break  # Stop after modifying the first occurrence
+        return "\n".join(lines)
+
+    def apply_changes():
+        with open("sub-martin.en.ass", "r") as f:
+            text = f.read()
+
+        font_style = font_style_var.get()
+        font_size = font_size_var.get()
+        bold = bold_var.get()
+        italic = italic_var.get()
+
+        modified_text = modify_style_section(text, font_style, font_size, bold, italic, primary_color, secondary_color, outline_color)
+
+        with open("sub-martin.en.ass", "w") as f:
+            f.write(modified_text)
+
+        print("Successfully modified the font style and size in your .ass file!")
+
 
     # Color Input Fields
-    
     primary_color_button = customtkinter.CTkButton(master=toplevel2, text="PrimaryColor", command=lambda: pick_color(primary_color_button, 'fg_color'))
     primary_color_button.pack(padx=5, pady=5)
 
@@ -69,12 +114,10 @@ def customize_transcript():
     background_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=lambda: pick_color(background_color_button, 'fg_color'))
     outline_color_button.pack(padx=5, pady=5)
 
-    # Modify Button (for illustration only)
-    modify_button = customtkinter.CTkButton(master=toplevel2, text="Modify Style (No action yet)")
-    modify_button.pack(padx=5, pady=5)
+    apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Modify Style (No action yet)", command=apply_changes)
+    apply_modifications_button.pack(padx=5, pady=5)
     
     
-
 def display_transcript(transcript_text):
     # Create a Toplevel window
     toplevel = customtkinter.CTkToplevel()
@@ -87,6 +130,7 @@ def display_transcript(transcript_text):
 
     # Run the Toplevel window
     toplevel.mainloop()
+
 
 def format_time(seconds):
     # Convert seconds to hours, minutes, and milliseconds
@@ -129,6 +173,7 @@ def generate_subtitle_file(language, segments, video_name):
         print(f"Audio file not found: {srt_file} (might have already been deleted)")
 
     return ass_file
+
 
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
@@ -235,6 +280,5 @@ class App(customtkinter.CTk):
         return language, segments, self.copied_video
 
         
-
 app = App()
 app.mainloop()
