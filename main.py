@@ -9,7 +9,6 @@ import whisper
 import tkinter
 
 def pick_color(button, color_option):
-
     pick_color = AskColor()
     if pick_color:
         color = pick_color.get()  # Get the hexadecimal color code
@@ -17,7 +16,6 @@ def pick_color(button, color_option):
         button.configure(**{color_option: color})
         return color
     return None
-    
 
 
 def customize_transcript():
@@ -26,7 +24,7 @@ def customize_transcript():
     
     #customize window startup positon on screen
     w = 400 
-    h = 400
+    h = 500
     
     ws = toplevel2.winfo_screenwidth() # width of the screen
     hs = toplevel2.winfo_screenheight()
@@ -34,7 +32,7 @@ def customize_transcript():
     y = (hs/2) - (h/2)
     toplevel2.geometry('%dx%d+%d+%d' % (w, h, x, y))
     
-    #costomization options
+    # Font Style and Size
     def update_font_style_var(*args):
         selected_font_style = font_style_var.get()
         print("Selected font style:", selected_font_style)
@@ -55,7 +53,6 @@ def customize_transcript():
     def font_size_list():
         return [str(i) for i in range(8, 31)]
     
-     # Font Size Combobox
     font_size_label = customtkinter.CTkLabel(master=toplevel2, text="Font Size:")
     font_size_label.pack()
     
@@ -65,14 +62,42 @@ def customize_transcript():
     font_size_combobox.pack()
 
     # Bold & Italic Radio Buttons
-    bold_var = tkinter.BooleanVar(toplevel2)
-    italic_var = tkinter.BooleanVar(toplevel2)
-    bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Bold")
+    def update_bold_var():
+        selected_value = bold_var.get()
+        print("Bold:", selected_value)
+    
+    bold_var = tkinter.IntVar(value=0)
+    bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Bold", value=1, command=update_bold_var)
     bold_radio.pack(padx=5, pady=5)
-    italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Italic")
+
+    not_bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Not Bold", value=0, command=update_bold_var)
+    not_bold_radio.pack(padx=5, pady=5)
+    
+    def update_italic_var():
+        selected_value = italic_var.get()
+        print("Italic:", selected_value)
+    
+    italic_var = tkinter.IntVar(value=0)
+    italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Italic", value=1, command=update_italic_var)
     italic_radio.pack(padx=5, pady=5)
     
-    primary_color, secondary_color, outline_color = "", "", ""
+    not_italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Not Italic", value=0, command=update_italic_var)
+    not_italic_radio.pack(padx=5, pady=5)
+    
+    # Color Input Fields
+    primary_color_button = customtkinter.CTkButton(master=toplevel2, text="PrimaryColor", command=lambda: pick_color(primary_color_button, 'fg_color'))
+    primary_color_button.pack(padx=5, pady=5)
+
+    secondary_color_button = customtkinter.CTkButton(master=toplevel2, text="Secondary Color", command=lambda: pick_color(secondary_color_button, 'fg_color'))
+    secondary_color_button.pack(padx=5, pady=5)
+
+    outline_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=lambda: pick_color(outline_color_button, 'fg_color'))
+    outline_color_button.pack(padx=5, pady=5)
+    
+    background_color_button = customtkinter.CTkButton(master=toplevel2, text="Background Color", command=lambda: pick_color(background_color_button, 'fg_color'))
+    background_color_button.pack(padx=5, pady=5)
+    
+    #primary_color, secondary_color, outline_color = "", "", ""
     
     # def modify_style_section(text, font_style, font_size, bold_var, italic_var, primary_color, secondary_color, outline_color):
     #     """
@@ -116,18 +141,6 @@ def customize_transcript():
     #     print("Successfully modified the font style and size in your .ass file!")
 
 
-    # Color Input Fields
-    primary_color_button = customtkinter.CTkButton(master=toplevel2, text="PrimaryColor", command=lambda: pick_color(primary_color_button, 'fg_color'))
-    primary_color_button.pack(padx=5, pady=5)
-
-    secondary_color_button = customtkinter.CTkButton(master=toplevel2, text="Secondary Color", command=lambda: pick_color(secondary_color_button, 'fg_color'))
-    secondary_color_button.pack(padx=5, pady=5)
-
-    outline_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=lambda: pick_color(outline_color_button, 'fg_color'))
-    outline_color_button.pack(padx=5, pady=5)
-    
-    background_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=lambda: pick_color(background_color_button, 'fg_color'))
-    outline_color_button.pack(padx=5, pady=5)
 
     apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Apply Changes") #, command=apply_changes
     apply_modifications_button.pack(padx=5, pady=5)
