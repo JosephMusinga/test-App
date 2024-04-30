@@ -9,14 +9,15 @@ import whisper
 import tkinter
 
 def pick_color(button, color_option):
-    
-    color = AskColor()
-    if color:
-        color = color[1]  # Get the hexadecimal color code
+
+    pick_color = AskColor()
+    if pick_color:
+        color = pick_color.get()  # Get the hexadecimal color code
         print(color)
         button.configure(**{color_option: color})
         return color
     return None
+    
 
 
 def customize_transcript():
@@ -34,22 +35,33 @@ def customize_transcript():
     toplevel2.geometry('%dx%d+%d+%d' % (w, h, x, y))
     
     #costomization options
+    def update_font_style_var(*args):
+        selected_font_style = font_style_var.get()
+        print("Selected font style:", selected_font_style)
+    
+    font_style_label = customtkinter.CTkLabel(master=toplevel2, text="Font Style:")
+    font_style_label.pack()
     
     font_styles = ["Arial", "Times New Roman", "Courier New", "Verdana"]
     font_style_var = tkinter.StringVar(value="Arial")
-    font_style_label = customtkinter.CTkLabel(master=toplevel2, text="Font Style:")
-    font_style_label.pack()
+    font_style_var.trace_add("write", update_font_style_var) 
     font_style_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_styles, variable=font_style_var)
     font_style_combobox.pack()
-   
+    
+    def update_font_size_var(*args):
+        selected_font_size = font_size_var.get()
+        print("Selected font size:", selected_font_size)
+
     def font_size_list():
         return [str(i) for i in range(8, 31)]
     
      # Font Size Combobox
     font_size_label = customtkinter.CTkLabel(master=toplevel2, text="Font Size:")
     font_size_label.pack()
-    font_size_var = tkinter.StringVar(value=16)  # Define font_size_var
-    font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_size_list(), variable=font_size_var)  # Pass font_size_var to textvariable
+    
+    font_size_var = tkinter.StringVar(value=16)
+    font_size_var.trace_add("write", update_font_size_var) 
+    font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_size_list(), variable=font_size_var)
     font_size_combobox.pack()
 
     # Bold & Italic Radio Buttons
@@ -117,7 +129,7 @@ def customize_transcript():
     background_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=lambda: pick_color(background_color_button, 'fg_color'))
     outline_color_button.pack(padx=5, pady=5)
 
-    apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Modify Style (No action yet)", command=apply_changes)
+    apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Apply Changes") #, command=apply_changes
     apply_modifications_button.pack(padx=5, pady=5)
     
     
