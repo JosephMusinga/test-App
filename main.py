@@ -162,8 +162,10 @@ def customize_transcript():
 
         with open(ass_file, "w") as f:
             f.write(modified_text)
-
-        print("Successfully modified the font style and size in your .ass file!")
+            
+        print("Successfully modified")
+        # success_text = "Customizations applied"
+        # App.update_main_label(success_text)
 
     apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Apply Changes", command=apply_changes) #
     apply_modifications_button.pack(padx=5, pady=5)
@@ -229,6 +231,7 @@ def generate_subtitle_file(language, segments, video_name):
 
 
 class App(customtkinter.CTk):
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("450x600")
@@ -250,6 +253,13 @@ class App(customtkinter.CTk):
 
         self.toplevel_window = None
         self.copied_video = None 
+        
+    # #method to access main_label outside the class
+    # @classmethod
+    # def update_main_label(self, new_text):
+    #     self.main_label.configure(text=new_text)
+        
+    #     return self.main_label
 
     def open_file(self):
         filepath = customtkinter.filedialog.askopenfilename(
@@ -333,7 +343,7 @@ class App(customtkinter.CTk):
             transcript_text += f"[%.2fs -> %.2fs] {segment['text']}\n" % (segment["start"], segment["end"])
         display_transcript(transcript_text) # Update label with transcript
 
-        return language, segments, self.copied_video, self.main_label
+        return language, segments, self.copied_video
 
         
 app = App()
