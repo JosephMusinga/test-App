@@ -140,23 +140,32 @@ def customize_transcript():
                 break  # Stop after modifying the first occurrence
         return "\n".join(lines)
 
+
     def apply_changes():
         with open("sub-martin.en.ass", "r") as f:
             text = f.read()
+            
+        def convert_color_format(var):
+            color = var.replace('#', '&H')
+            return color
 
         font_style = font_style_var.get()
         font_size = font_size_var.get()
+        
+        p_color = convert_color_format(primary_color)
+        s_color = convert_color_format(secondary_color)
+        out_color = convert_color_format(outline_color)
+        back_color = convert_color_format(background_color)
+
         bold = str(bold_var.get())
         italic = str(italic_var.get())
 
-        modified_text = modifications_section(text, font_style, font_size, primary_color, secondary_color, outline_color, background_color, bold, italic)
+        modified_text = modifications_section(text, font_style, font_size, p_color, s_color, out_color, back_color, bold, italic)
 
         with open("new.en.ass", "w") as f:
             f.write(modified_text)
 
         print("Successfully modified the font style and size in your .ass file!")
-
-
 
     apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Apply Changes", command=apply_changes) #
     apply_modifications_button.pack(padx=5, pady=5)
