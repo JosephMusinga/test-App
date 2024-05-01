@@ -9,8 +9,6 @@ import whisper
 import tkinter
 
 
-
-
 def customize_transcript():
     toplevel2 = customtkinter.CTkToplevel()
     toplevel2.title("Customize Captions")
@@ -135,14 +133,14 @@ def customize_transcript():
                 style_parts[6] = back_color or style_parts[6]
                 style_parts[7] = bold or style_parts[7]
                 style_parts[8] = italic or style_parts[8]
-                # Join the modified parts back with comma separators
+                
                 lines[i] = ",".join(style_parts)
-                break  # Stop after modifying the first occurrence
+                break  
         return "\n".join(lines)
 
 
     def apply_changes():
-        with open("sub-martin.en.ass", "r") as f:
+        with open(ass_file, "r") as f:
             text = f.read()
             
         def convert_color_format(var):
@@ -162,7 +160,7 @@ def customize_transcript():
 
         modified_text = modifications_section(text, font_style, font_size, p_color, s_color, out_color, back_color, bold, italic)
 
-        with open("new.en.ass", "w") as f:
+        with open(ass_file, "w") as f:
             f.write(modified_text)
 
         print("Successfully modified the font style and size in your .ass file!")
@@ -197,10 +195,11 @@ def format_time(seconds):
     formatted_time = f"{hours:02d}:{minutes:02d}:{seconds:01d},{milliseconds:03d}"
     return formatted_time
 
-# Function to generate subtitle file from transcribed segments
+
 def generate_subtitle_file(language, segments, video_name):
-    srt_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.srt"  
-    ass_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.ass"  
+    srt_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.srt" 
+    global ass_file
+    ass_file = f"sub-{os.path.splitext(video_name)[0]}.{language}.ass" 
     
     text = ""
     # Generate subtitle text with segment start and end times
@@ -219,6 +218,7 @@ def generate_subtitle_file(language, segments, video_name):
     command = ["ffmpeg", "-i", srt_file, ass_file]
     subprocess.run(command, check=True)
     
+    
     try:
         os.remove(srt_file)
         print(f"Temporary audio file deleted: {srt_file}")
@@ -236,8 +236,8 @@ class App(customtkinter.CTk):
         self.open_file_button = customtkinter.CTkButton(self, text="Open File", command=self.open_file)
         self.open_file_button.pack(side="top", padx=20, pady=20)
 
-        self.label = customtkinter.CTkLabel(self, text="No item selected", text_color="white")
-        self.label.pack(padx=20, pady=20)
+        self.main_label = customtkinter.CTkLabel(self, text="No item selected", text_color="white")
+        self.main_label.pack(padx=20, pady=20)
 
         self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe)
         self.generate_transcript_button.pack(side="top", padx=20, pady=20)
@@ -249,7 +249,7 @@ class App(customtkinter.CTk):
         self.add_captions_to_video_button.pack(side="top", padx=20, pady=20)
 
         self.toplevel_window = None
-        self.copied_video = None  # Track the copied video path
+        self.copied_video = None 
 
     def open_file(self):
         filepath = customtkinter.filedialog.askopenfilename(
@@ -263,13 +263,13 @@ class App(customtkinter.CTk):
             try:
                 shutil.copy(filepath, filename)  # Copy the file using filename
                 self.copied_video = filename
-                self.label.configure(text=f"You have selected: {filename}")  # Update label with filename
+                self.main_label.configure(text=f"You have selected: {filename}")  # Update main_label with filename
                 print(f"File copied to: {filename}")
             except Exception as e:  # Handle potential errors (optional)
-                self.label.configure(text="Error copying file")  # Update label with error message
+                self.main_label.configure(text="Error copying file")  # Update main_label with error message
                 print(f"Error copying file: {e}")
         else:
-            self.label.configure(text="No item selected")  # Update label for no selection
+            self.main_label.configure(text="No item selected")  # Update label for no selection
 
     def extract_audio(self):
         if self.copied_video is None:
@@ -298,7 +298,7 @@ class App(customtkinter.CTk):
     def transcribe(self):
         audio_file = self.extract_audio()
         if audio_file is None:
-            self.label.configure(text="Error: Audio extraction failed or no video selected.")
+            self.main_label.configure(text="Error: Audio extraction failed or no video selected.")
             return
 
         # Check if audio file exists
@@ -324,7 +324,8 @@ class App(customtkinter.CTk):
             print(f"Audio file not found: {audio_file} (might have already been deleted)")
 
         subtitle_file = generate_subtitle_file(language, segments, self.copied_video)
-        print(f"Subtitle file generated: {subtitle_file}")
+        print(f"Transcript file generated: {subtitle_file}")
+        self.main_label.configure(text="Transcript has been generated successfully")
 
         # Print or display the transcript (modify as needed)
         transcript_text = ""
@@ -332,8 +333,7 @@ class App(customtkinter.CTk):
             transcript_text += f"[%.2fs -> %.2fs] {segment['text']}\n" % (segment["start"], segment["end"])
         display_transcript(transcript_text) # Update label with transcript
 
-        
-        return language, segments, self.copied_video
+        return language, segments, self.copied_video, self.main_label
 
         
 app = App()
