@@ -9,6 +9,33 @@ import whisper
 import tkinter
 
 
+def add_subtitle_to_video():
+    
+    copied_video = mainApp.copied_video
+    # Define input video stream
+    video_input_stream = ffmpeg.input(copied_video)
+    # Define subtitle input stream
+    subtitle_input_stream = ffmpeg.input(ass_file)
+    # Define output video file name
+    output_video = f"output-{copied_video}.mp4"
+    subtitle_track_title = ass_file.replace(".ass", "")
+    # Add soft subtitles if specified
+    soft_subtitle = False
+    subtitle_language = 'en'
+    if soft_subtitle:
+        stream = ffmpeg.output(
+            video_input_stream, subtitle_input_stream, output_video, **{"c": "copy", "c:s": "mov_text"},
+            **{"metadata:s:s:0": f"language={subtitle_language}",
+            "metadata:s:s:0": f"title={subtitle_track_title}"}
+        )
+        ffmpeg.run(stream, overwrite_output=True)
+    else:
+        # Add hard subtitles
+        stream = ffmpeg.output(video_input_stream, output_video,
+                               vf=f"subtitles={ass_file}")
+        ffmpeg.run(stream, overwrite_output=True)   
+
+
 def customize_transcript():
     toplevel2 = customtkinter.CTkToplevel()
     toplevel2.title("Customize Captions")
@@ -248,12 +275,12 @@ class App(customtkinter.CTk):
         self.customize_captions_button = customtkinter.CTkButton(self, text="Customize Captions", command=customize_transcript)
         self.customize_captions_button.pack(side="top", padx=20, pady=20)
         
-        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video")
+        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=add_subtitle_to_video)
         self.add_captions_to_video_button.pack(side="top", padx=20, pady=20)
 
         self.toplevel_window = None
-        self.copied_video = None 
-        
+        self.copied_video = 'None' 
+
     # #method to access main_label outside the class
     # @classmethod
     # def update_main_label(self, new_text):
@@ -346,5 +373,5 @@ class App(customtkinter.CTk):
         return language, segments, self.copied_video
 
         
-app = App()
-app.mainloop()
+mainApp = App()
+mainApp.mainloop()
