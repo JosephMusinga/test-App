@@ -80,27 +80,31 @@ def customize_transcript():
     font_size_combobox.grid(row=1, column=1, padx=5, pady=5)
 
     # Bold & Italic Radio Buttons
-    def update_bold_var():
-        selected_value = bold_var.get()
-        print("Bold:", selected_value)
+    def update_bold_var(_=None):
+        selected_value = bold_segmented.get()
+        if selected_value == "Bold":
+            bold_var = 1
+        else:
+            bold_var = 0
+        print("Bold:", selected_value, bold_var)
     
     bold_var = tkinter.IntVar(value=0)
-    bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Bold", value=1, command=update_bold_var)
-    bold_radio.grid(row=2, column=0, padx=5, pady=5, sticky="e")
-
-    not_bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Not Bold", value=0, command=update_bold_var)
-    not_bold_radio.grid(row=2, column=1, padx=5, pady=5, sticky="w")
+    bold_segmented = customtkinter.CTkSegmentedButton(master=toplevel2, values=["Bold", "Not Bold"], command=update_bold_var)
+    bold_segmented.set("Not Bold")
+    bold_segmented.grid(row=2, column=0, padx=5, pady=5, sticky="e")
     
-    def update_italic_var():
-        selected_value = italic_var.get()
-        print("Italic:", selected_value)
+    def update_italic_var(_=None):
+        selected_value = italic_segmented.get()
+        if selected_value == "Italic":
+            italic_var = 1
+        else:
+            italic_var = 0
+        print("Italic:", selected_value, italic_var)
     
     italic_var = tkinter.IntVar(value=0)
-    italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Italic", value=1, command=update_italic_var)
-    italic_radio.grid(row=3, column=0, padx=5, pady=5, sticky="e")
-    
-    not_italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Not Italic", value=0, command=update_italic_var)
-    not_italic_radio.grid(row=3,column=1, padx=5, pady=5, sticky="w")
+    italic_segmented = customtkinter.CTkSegmentedButton(master=toplevel2, values=["Italic", "Not Italic"], command=update_italic_var)
+    italic_segmented.set("Not Italic")
+    italic_segmented.grid(row=2, column=1, padx=5, pady=5)
     
     # Color Buttons
     def pick_color(button, color_option):
@@ -295,7 +299,7 @@ class App(customtkinter.CTk):
         
         self.add_captions_to_video_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
         self.add_captions_to_video_checkbox.grid(row=4, column=3)
-
+        
         self.toplevel_window = None
         self.copied_video = 'None' 
 
