@@ -12,14 +12,11 @@ import tkinter
 def add_subtitle_to_video():
     
     copied_video = mainApp.copied_video
-    # Define input video stream
     video_input_stream = ffmpeg.input(copied_video)
-    # Define subtitle input stream
     subtitle_input_stream = ffmpeg.input(ass_file)
-    # Define output video file name
     output_video = f"output-{copied_video}.mp4"
     subtitle_track_title = ass_file.replace(".ass", "")
-    # Add soft subtitles if specified
+    
     soft_subtitle = False
     subtitle_language = 'en'
     if soft_subtitle:
@@ -39,6 +36,9 @@ def add_subtitle_to_video():
 def customize_transcript():
     toplevel2 = customtkinter.CTkToplevel()
     toplevel2.title("Customize Captions")
+    toplevel2.grid_columnconfigure((0, 1, 2), weight=1)
+    toplevel2.grid_rowconfigure((6), weight=2)
+    toplevel2.resizable(False, False)
     
     #customize window startup positon on screen
     w = 400 
@@ -56,13 +56,13 @@ def customize_transcript():
         print("Selected font style:", selected_font_style)
     
     font_style_label = customtkinter.CTkLabel(master=toplevel2, text="Font Style:")
-    font_style_label.pack()
+    font_style_label.grid(row=0, column=0, padx=5, pady=5, sticky="e")
     
     font_styles = ["Arial", "Times New Roman", "Courier New", "Verdana"]
     font_style_var = tkinter.StringVar(value="Arial")
     font_style_var.trace_add("write", update_font_style_var) 
     font_style_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_styles, variable=font_style_var)
-    font_style_combobox.pack()
+    font_style_combobox.grid(row=0, column=1, padx=5, pady=5)
     
     def update_font_size_var(*args):
         selected_font_size = font_size_var.get()
@@ -72,12 +72,12 @@ def customize_transcript():
         return [str(i) for i in range(8, 31)]
     
     font_size_label = customtkinter.CTkLabel(master=toplevel2, text="Font Size:")
-    font_size_label.pack()
+    font_size_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
     
     font_size_var = tkinter.StringVar(value=16)
     font_size_var.trace_add("write", update_font_size_var) 
     font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_size_list(), variable=font_size_var)
-    font_size_combobox.pack()
+    font_size_combobox.grid(row=1, column=1, padx=5, pady=5)
 
     # Bold & Italic Radio Buttons
     def update_bold_var():
@@ -86,10 +86,10 @@ def customize_transcript():
     
     bold_var = tkinter.IntVar(value=0)
     bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Bold", value=1, command=update_bold_var)
-    bold_radio.pack(padx=5, pady=5)
+    bold_radio.grid(row=2, column=0, padx=5, pady=5, sticky="e")
 
     not_bold_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=bold_var, text="Not Bold", value=0, command=update_bold_var)
-    not_bold_radio.pack(padx=5, pady=5)
+    not_bold_radio.grid(row=2, column=1, padx=5, pady=5, sticky="w")
     
     def update_italic_var():
         selected_value = italic_var.get()
@@ -97,10 +97,10 @@ def customize_transcript():
     
     italic_var = tkinter.IntVar(value=0)
     italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Italic", value=1, command=update_italic_var)
-    italic_radio.pack(padx=5, pady=5)
+    italic_radio.grid(row=3, column=0, padx=5, pady=5, sticky="e")
     
     not_italic_radio = customtkinter.CTkRadioButton(master=toplevel2, variable=italic_var, text="Not Italic", value=0, command=update_italic_var)
-    not_italic_radio.pack(padx=5, pady=5)
+    not_italic_radio.grid(row=3,column=1, padx=5, pady=5, sticky="w")
     
     # Color Buttons
     def pick_color(button, color_option):
@@ -116,8 +116,8 @@ def customize_transcript():
         primary_color = pick_color(primary_color_button, 'fg_color')
         print(primary_color)
 
-    primary_color_button = customtkinter.CTkButton(master=toplevel2, text="PrimaryColor", command=update_primary_color)
-    primary_color_button.pack(padx=5, pady=5)
+    primary_color_button = customtkinter.CTkButton(master=toplevel2, text="Primary Color", command=update_primary_color)
+    primary_color_button.grid(row=4,column=0, padx=5, pady=5)
     
     def update_secondary_color():
         global secondary_color
@@ -125,7 +125,7 @@ def customize_transcript():
         print(secondary_color)
 
     secondary_color_button = customtkinter.CTkButton(master=toplevel2, text="Secondary Color", command=update_secondary_color)
-    secondary_color_button.pack(padx=5, pady=5)
+    secondary_color_button.grid(row=4,column=1, padx=5, pady=5)
     
     def update_outline_color():
         global outline_color
@@ -133,7 +133,7 @@ def customize_transcript():
         print(outline_color)
 
     outline_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=update_outline_color)
-    outline_color_button.pack(padx=5, pady=5)
+    outline_color_button.grid(row=5,column=0, padx=5, pady=5)
     
     def update_background_color():
         global background_color
@@ -141,7 +141,7 @@ def customize_transcript():
         print(background_color)
     
     background_color_button = customtkinter.CTkButton(master=toplevel2, text="Background Color", command=update_background_color)
-    background_color_button.pack(padx=5, pady=5)
+    background_color_button.grid(row=5,column=1, padx=5, pady=5)
     
     
     def modifications_section(text, font_style, font_size, p_color, s_color, out_color, back_color, bold, italic):
@@ -194,8 +194,11 @@ def customize_transcript():
         # success_text = "Customizations applied"
         # App.update_main_label(success_text)
 
+    cancel_button = customtkinter.CTkButton(master=toplevel2, text="Cancel", fg_color="gray") #
+    cancel_button.grid(row=6, column=0, padx=5, pady=5)
+
     apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Apply Changes", command=apply_changes) #
-    apply_modifications_button.pack(padx=5, pady=5)
+    apply_modifications_button.grid(row=6, column=1, padx=5, pady=5, sticky="e")
     
     
 def display_transcript(transcript_text):
@@ -261,32 +264,40 @@ class App(customtkinter.CTk):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.title("CAPTION GENERATOR")
         self.geometry("450x600")
+        self.grid_columnconfigure((0, 1), weight=1)
+        self.resizable(False, False)
+        
+        self.main_label = customtkinter.CTkLabel(self, text="No item selected. Please select a video to start", text_color="white")
+        self.main_label.grid(row=0, column=0, padx=20, pady=50, columnspan=4 ,sticky="ew")
 
         self.open_file_button = customtkinter.CTkButton(self, text="Open File", command=self.open_file)
-        self.open_file_button.pack(side="top", padx=20, pady=20)
-
-        self.main_label = customtkinter.CTkLabel(self, text="No item selected", text_color="white")
-        self.main_label.pack(padx=20, pady=20)
+        self.open_file_button.grid(row=1, column=0, padx=20, pady=20)
+        
+        self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.open_file_checkbox.grid(row=1, column=3)
 
         self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe)
-        self.generate_transcript_button.pack(side="top", padx=20, pady=20)
+        self.generate_transcript_button.grid(row=2, column=0, padx=20, pady=20)
         
-        self.customize_captions_button = customtkinter.CTkButton(self, text="Customize Captions", command=customize_transcript)
-        self.customize_captions_button.pack(side="top", padx=20, pady=20)
+        self.generate_transcript_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.generate_transcript_checkbox.grid(row=2, column=3)
+        
+        self.customize_captions_button = customtkinter.CTkButton(self, text="Customize Caption Appearance", command=customize_transcript)
+        self.customize_captions_button.grid(row=3, column=0, padx=20, pady=20)
+        
+        self.customize_captions_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.customize_captions_checkbox.grid(row=3, column=3)
         
         self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=add_subtitle_to_video)
-        self.add_captions_to_video_button.pack(side="top", padx=20, pady=20)
+        self.add_captions_to_video_button.grid(row=4, column=0, padx=20, pady=20)
+        
+        self.add_captions_to_video_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.add_captions_to_video_checkbox.grid(row=4, column=3)
 
         self.toplevel_window = None
         self.copied_video = 'None' 
-
-    # #method to access main_label outside the class
-    # @classmethod
-    # def update_main_label(self, new_text):
-    #     self.main_label.configure(text=new_text)
-        
-    #     return self.main_label
 
     def open_file(self):
         filepath = customtkinter.filedialog.askopenfilename(
