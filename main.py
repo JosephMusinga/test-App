@@ -26,11 +26,14 @@ def add_subtitle_to_video():
             "metadata:s:s:0": f"title={subtitle_track_title}"}
         )
         ffmpeg.run(stream, overwrite_output=True)
+        print("successfully added soft subtitles")
+        
     else:
         # Add hard subtitles
         stream = ffmpeg.output(video_input_stream, output_video,
                                vf=f"subtitles={ass_file}")
-        ffmpeg.run(stream, overwrite_output=True)   
+        ffmpeg.run(stream, overwrite_output=True)
+        print("successfully added hard subtitles")
 
 
 def customize_transcript():
@@ -117,6 +120,7 @@ def customize_transcript():
     
     def update_primary_color():
         global primary_color
+        primary_color = '&Hffffff'
         primary_color = pick_color(primary_color_button, 'fg_color')
         print(primary_color)
 
@@ -125,6 +129,7 @@ def customize_transcript():
     
     def update_secondary_color():
         global secondary_color
+        secondary_color = '&Hffffff'
         secondary_color = pick_color(secondary_color_button, 'fg_color')
         print(secondary_color)
 
@@ -133,22 +138,24 @@ def customize_transcript():
     
     def update_outline_color():
         global outline_color
+        outline_color = "&H0"
         outline_color = pick_color(outline_color_button, 'fg_color')
         print(outline_color)
 
     outline_color_button = customtkinter.CTkButton(master=toplevel2, text="Outline Color", command=update_outline_color)
     outline_color_button.grid(row=5,column=0, padx=5, pady=5)
     
-    def update_background_color():
-        global background_color
-        background_color = pick_color(background_color_button, 'fg_color')
-        print(background_color)
+    # def update_background_color():
+    #     global background_color
+    #     background_color = "&H0"
+    #     background_color = pick_color(background_color_button, 'fg_color')
+    #     print(background_color)
     
-    background_color_button = customtkinter.CTkButton(master=toplevel2, text="Background Color", command=update_background_color)
-    background_color_button.grid(row=5,column=1, padx=5, pady=5)
+    # background_color_button = customtkinter.CTkButton(master=toplevel2, text="Background Color", command=update_background_color)
+    # background_color_button.grid(row=5,column=1, padx=5, pady=5)
     
     
-    def modifications_section(text, font_style, font_size, p_color, s_color, out_color, back_color, bold, italic):
+    def modifications_section(text, font_style, font_size, p_color, s_color, out_color, bold, italic):
         """
         Modifies the [V4+ Styles] section in the text with the user-provided style and size.
         """
@@ -161,7 +168,6 @@ def customize_transcript():
                 style_parts[3] = p_color or style_parts[3]
                 style_parts[4] = s_color or style_parts[4]
                 style_parts[5] = out_color or style_parts[5] 
-                style_parts[6] = back_color or style_parts[6]
                 style_parts[7] = bold or style_parts[7]
                 style_parts[8] = italic or style_parts[8]
                 
@@ -178,18 +184,18 @@ def customize_transcript():
             color = var.replace('#', '&H')
             return color
 
-        font_style = font_style_var.get()
-        font_size = font_size_var.get()
+        font_style = font_style_var
+        font_size = font_size_var
         
         p_color = convert_color_format(primary_color)
         s_color = convert_color_format(secondary_color)
         out_color = convert_color_format(outline_color)
-        back_color = convert_color_format(background_color)
+        # back_color = convert_color_format(background_color)
 
         bold = str(bold_var.get())
         italic = str(italic_var.get())
 
-        modified_text = modifications_section(text, font_style, font_size, p_color, s_color, out_color, back_color, bold, italic)
+        modified_text = modifications_section(text, font_style, font_size, p_color, s_color, out_color, bold, italic)
 
         with open(ass_file, "w") as f:
             f.write(modified_text)
@@ -251,7 +257,7 @@ def generate_subtitle_file(language, segments, video_name):
     f.write(text)
     f.close()
     
-    command = ["ffmpeg", "-i", srt_file, ass_file]
+    command = ["ffmpeg", "-i", srt_file, "-y",ass_file]
     subprocess.run(command, check=True)
     
     
@@ -261,6 +267,7 @@ def generate_subtitle_file(language, segments, video_name):
     except FileNotFoundError:
         print(f"Audio file not found: {srt_file} (might have already been deleted)")
 
+    
     return ass_file
 
 
@@ -302,7 +309,7 @@ class App(customtkinter.CTk):
         
         self.toplevel_window = None
         self.copied_video = 'None' 
-
+        
     def open_file(self):
         filepath = customtkinter.filedialog.askopenfilename(
             title="Select a File",
@@ -313,10 +320,11 @@ class App(customtkinter.CTk):
             filename = os.path.basename(filepath)  # Extract filename
 
             try:
-                shutil.copy(filepath, filename)  # Copy the file using filename
+                # Overwrite existing file with shutil.move
+                shutil.move(filepath, filename)  
                 self.copied_video = filename
                 self.main_label.configure(text=f"You have selected: {filename}")  # Update main_label with filename
-                print(f"File copied to: {filename}")
+                print(f"File moved to: {filename}")
             except Exception as e:  # Handle potential errors (optional)
                 self.main_label.configure(text="Error copying file")  # Update main_label with error message
                 print(f"Error copying file: {e}")
