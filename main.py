@@ -34,6 +34,20 @@ def add_subtitle_to_video():
                                vf=f"subtitles={ass_file}")
         ffmpeg.run(stream, overwrite_output=True)
         print("successfully added hard subtitles")
+        
+    #filedialog for exporting video   
+    output_filename = customtkinter.filedialog.asksaveasfilename(
+        initialfile=f"output-{copied_video}",
+        title="Save Output Video",
+        filetypes=[("MP4 files", "*.mp4")]
+    )
+    
+    if output_filename:
+        # Move the output video to the chosen location using shutil.move
+        shutil.move(output_video, output_filename)
+        print(f"Output video saved to: {output_filename}")
+    else:
+        print("Output video generation cancelled.")
 
 
 def customize_transcript():
@@ -62,7 +76,8 @@ def customize_transcript():
     font_style_label.grid(row=0, column=0, padx=5, pady=5, sticky="e")
     
     font_styles = ["Arial", "Times New Roman", "Courier New", "Verdana"]
-    font_style_var = tkinter.StringVar(value="Arial")
+    font_style_var = tkinter.StringVar()
+    font_style_var.set(value="Arial")
     font_style_var.trace_add("write", update_font_style_var) 
     font_style_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_styles, variable=font_style_var)
     font_style_combobox.grid(row=0, column=1, padx=5, pady=5)
@@ -78,7 +93,8 @@ def customize_transcript():
     font_size_label = customtkinter.CTkLabel(master=toplevel2, text="Font Size:")
     font_size_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
     
-    font_size_var = tkinter.StringVar(value=16)
+    font_size_var = tkinter.StringVar()
+    font_size_var.set(value=16)
     font_size_var.trace_add("write", update_font_size_var) 
     font_size_combobox = customtkinter.CTkComboBox(master=toplevel2, values=font_size_list(), variable=font_size_var)
     font_size_combobox.grid(row=1, column=1, padx=5, pady=5)
@@ -90,12 +106,13 @@ def customize_transcript():
     def update_bold_var(_=None):
         selected_value = bold_segmented.get()
         if selected_value == "Bold":
-            bold_var = 1
+            bold_var.set(value=1)
         else:
-            bold_var = 0
+            bold_var.set(value=0)
         print("Bold:", selected_value, bold_var)
     
-    bold_var = tkinter.IntVar(value=0)
+    bold_var = tkinter.IntVar()
+    bold_var.set(value=0)
     bold_segmented = customtkinter.CTkSegmentedButton(master=toplevel2, values=["Bold", "Not Bold"], command=update_bold_var)
     bold_segmented.set("Not Bold")
     bold_segmented.grid(row=2, column=1, padx=5, pady=5)
@@ -107,12 +124,13 @@ def customize_transcript():
     def update_italic_var(_=None):
         selected_value = italic_segmented.get()
         if selected_value == "Italic":
-            italic_var = 1
+            italic_var.set(value=1)
         else:
-            italic_var = 0
+            italic_var.set(value=0)
         print("Italic:", selected_value, italic_var)
     
-    italic_var = tkinter.IntVar(value=0)
+    italic_var = tkinter.IntVar()
+    italic_var.set(value=0)
     italic_segmented = customtkinter.CTkSegmentedButton(master=toplevel2, values=["Italic", "Not Italic"], command=update_italic_var)
     italic_segmented.set("Not Italic")
     italic_segmented.grid(row=3, column=1, padx=5, pady=5)
@@ -123,24 +141,31 @@ def customize_transcript():
         if pick_color:
             color = pick_color.get()
             button.configure(**{color_option: color})
+            print(f"pick color check: {color}")
             return color
         return None
     
     # Primary Color
-    def update_primary_color():
-        global primary_color
-        primary_color = '&Hffffff'
-        primary_color = pick_color(primary_color_button, 'fg_color')
-        print(primary_color)
-        
     primary_color_label = customtkinter.CTkLabel(master=toplevel2, text="Primary Color:")
     primary_color_label.grid(row=4, column=0, padx=5, pady=5, sticky="e")
 
+    global primary_color 
+    primary_color = '&Hffffff'
+    
+    def update_primary_color():
+        global primary_color
+        print(f"unchanged: {primary_color}")
+        new_color = pick_color(primary_color_button, 'fg_color')
+        if new_color:
+            primary_color = new_color  # Assign the returned color
+            print(f"update check: {primary_color}")
+    
+        
     primary_color_button = customtkinter.CTkButton(master=toplevel2, text="Pick Color", command=update_primary_color)
     primary_color_button.grid(row=4,column=1, padx=5, pady=5)
     
     #Outline(background) color frame
-    outline_frame = customtkinter.CTkFrame(toplevel2)
+    outline_frame = customtkinter.CTkFrame(toplevel2, fg_color="red")
     outline_frame.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
     
     #Outline Switch
@@ -149,42 +174,24 @@ def customize_transcript():
     add_outline_switch.grid(row=0, column=0, padx=5, pady=5)
     
     #Outline Button
+    global outline_color
+    outline_color = "&H0"
+    
     def update_outline_color():
         global outline_color
-        outline_color = "&H0"
-        outline_color = pick_color(outline_color_button, 'fg_color')
-        print(outline_color)
-
+        print(f"unchanged: {outline_color}")
+        new_color = pick_color(outline_color_button, 'fg_color')
+        if new_color:
+            outline_color = new_color  # Assign the returned color
+            print(f"update check: {outline_color}")
+    
     outline_color_button = customtkinter.CTkButton(outline_frame, text="Pick Color", command=update_outline_color)
     outline_color_button.grid(row=0, column=1, padx=5, pady=5)
     
-       
-    
-    def update_secondary_color():
-        global secondary_color
-        secondary_color = '&Hffffff'
-        secondary_color = pick_color(secondary_color_button, 'fg_color')
-        print(secondary_color)
-
-    secondary_color_button = customtkinter.CTkButton(master=toplevel2, text="Secondary Color", command=update_secondary_color)
-    secondary_color_button.grid(row=6,column=1, padx=5, pady=5)
-    
-    
-    
-    # def update_background_color():
-    #     global background_color
-    #     background_color = "&H0"
-    #     background_color = pick_color(background_color_button, 'fg_color')
-    #     print(background_color)
-    
-    # background_color_button = customtkinter.CTkButton(master=toplevel2, text="Background Color", command=update_background_color)
-    # background_color_button.grid(row=5,column=1, padx=5, pady=5)
     
     
     def modifications_section(text, font_style, font_size, p_color, out_color, bold, italic):
-        """
-        Modifies the [V4+ Styles] section in the text with the user-provided style and size.
-        """
+        
         lines = text.splitlines()
         for i, line in enumerate(lines):
             if line.startswith("Style: Default,"):
@@ -204,18 +211,29 @@ def customize_transcript():
     def apply_changes():
         with open(ass_file, "r") as f:
             text = f.read()
-            
+
+        font_style = font_style_var.get()
+        print(f"font style: {font_style}")
+        
+        font_size = font_size_var.get()
+        print(f"font size: {font_size}")
+        
         def convert_color_format(var):
             color = var.replace('#', '&H')
             return color
-
-        font_style = font_style_var
-        font_size = font_size_var
         
         p_color = convert_color_format(primary_color)
+        print(f"primary: {p_color}")
+        
         out_color = convert_color_format(outline_color)
+        print(f"out color: {out_color}")
+        
         bold = str(bold_var.get())
+        print(f"bold: {bold}")
+        
         italic = str(italic_var.get())
+        print(f"italic: {italic}")
+        
 
         modified_text = modifications_section(text, font_style, font_size, p_color, out_color, bold, italic)
 
@@ -342,10 +360,10 @@ class App(customtkinter.CTk):
 
             try:
                 # Overwrite existing file with shutil.move
-                shutil.move(filepath, filename)  
+                shutil.copy(filepath, filename)
                 self.copied_video = filename
                 self.main_label.configure(text=f"You have selected: {filename}")  # Update main_label with filename
-                print(f"File moved to: {filename}")
+                print(f"File copied to: {filename}")
             except Exception as e:  # Handle potential errors (optional)
                 self.main_label.configure(text="Error copying file")  # Update main_label with error message
                 print(f"Error copying file: {e}")
