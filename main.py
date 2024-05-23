@@ -164,13 +164,28 @@ def customize_transcript():
     primary_color_button.grid(row=4,column=1, padx=5, pady=5)
     
     #Outline(background) color frame
-    outline_frame = customtkinter.CTkFrame(toplevel2, fg_color="red")
+    outline_frame = customtkinter.CTkFrame(toplevel2)
     outline_frame.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
     
-    #Outline Switch
-    switch_var = customtkinter.StringVar(value="off")
-    add_outline_switch = customtkinter.CTkSwitch(outline_frame, text="Add Background", variable=switch_var, onvalue="on", offvalue="off")
-    add_outline_switch.grid(row=0, column=0, padx=5, pady=5)
+    #Outline label 
+    outline_color_label = customtkinter.CTkLabel(outline_frame, text="Background:")
+    outline_color_label.grid(row=0, column=0, padx=5, pady=5)
+    
+    #Outline switch
+    def update_background_var(_=None):
+        selected_value = background_segmented.get()
+        if selected_value == "On":
+            background_var.set(value=3)
+        else:
+            background_var.set(value=1)
+        print("Background:", selected_value, background_var)
+    
+    background_var = tkinter.IntVar()
+    background_var.set(value=1)
+    
+    background_segmented = customtkinter.CTkSegmentedButton(outline_frame, values=["On", "Off"], command=update_background_var)
+    background_segmented.set("Off")
+    background_segmented.grid(row=0, column=1, padx=5, pady=5)
     
     #Outline Button
     global outline_color
@@ -185,11 +200,11 @@ def customize_transcript():
             print(f"update check: {outline_color}")
     
     outline_color_button = customtkinter.CTkButton(outline_frame, text="Pick Color", command=update_outline_color)
-    outline_color_button.grid(row=0, column=1, padx=5, pady=5)
+    outline_color_button.grid(row=0, column=2, padx=5, pady=5)
     
     
     
-    def modifications_section(text, font_style, font_size, p_color, out_color, bold, italic):
+    def modifications_section(text, font_style, font_size, p_color, out_color, bold, italic, background):
         
         lines = text.splitlines()
         for i, line in enumerate(lines):
@@ -201,6 +216,7 @@ def customize_transcript():
                 style_parts[5] = out_color or style_parts[5] 
                 style_parts[7] = bold or style_parts[7]
                 style_parts[8] = italic or style_parts[8]
+                style_parts[16] = background or style_parts[16]
                 
                 lines[i] = ",".join(style_parts)
                 break  
@@ -239,8 +255,11 @@ def customize_transcript():
         italic = str(italic_var.get())
         print(f"italic: {italic}")
         
+        background = str(background_var.get())
+        print(f"background: {background_var}")
+        
 
-        modified_text = modifications_section(text, font_style, font_size, p_color, out_color, bold, italic)
+        modified_text = modifications_section(text, font_style, font_size, p_color, out_color, bold, italic, background)
 
         with open(ass_file, "w") as f:
             f.write(modified_text)
@@ -249,7 +268,7 @@ def customize_transcript():
         # success_text = "Customizations applied"
         # App.update_main_label(success_text)
 
-    cancel_button = customtkinter.CTkButton(master=toplevel2, text="Cancel", fg_color="gray") #
+    cancel_button = customtkinter.CTkButton(master=toplevel2, text="Cancel", fg_color="gray")
     cancel_button.grid(row=8, column=0, padx=5, pady=5)
 
     apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Apply Changes", command=apply_changes) #
