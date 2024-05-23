@@ -145,7 +145,7 @@ def customize_transcript():
         return None
     
     # Primary Color
-    primary_color_label = customtkinter.CTkLabel(master=toplevel2, text="Primary Color:")
+    primary_color_label = customtkinter.CTkLabel(master=toplevel2, text="Text Color:")
     primary_color_label.grid(row=4, column=0, padx=5, pady=5, sticky="e")
 
     global primary_color 
@@ -202,9 +202,30 @@ def customize_transcript():
     outline_color_button = customtkinter.CTkButton(outline_frame, text="Pick Color", command=update_outline_color)
     outline_color_button.grid(row=0, column=2, padx=5, pady=5)
     
+    # Position Button
+    position_label = customtkinter.CTkLabel(master=toplevel2, text="Position:")
+    position_label.grid(row=6, column=0, padx=5, pady=5, sticky="e")
+    
+    def update_positon_var(_=None):
+        selected_value = position_segmented.get()
+        if selected_value == "Center":
+            position_var.set(value=5)
+        elif selected_value == "Top":
+            position_var.set(value=8)
+        else:
+            position_var.set(value=2)
+        print("Position:", selected_value, position_var)
+    
+    position_var = tkinter.IntVar()
+    position_var.set(value=2)
+    position_segmented = customtkinter.CTkSegmentedButton(master=toplevel2, values=["Bottom", "Center", "Top"], command=update_positon_var)
+    position_segmented.set("Bottom")
+    position_segmented.grid(row=6, column=1, padx=5, pady=5)
     
     
-    def modifications_section(text, font_style, font_size, p_color, out_color, bold, italic, background):
+    
+    
+    def modifications_section(text, font_style, font_size, p_color, out_color, bold, italic, background, position):
         
         lines = text.splitlines()
         for i, line in enumerate(lines):
@@ -217,6 +238,7 @@ def customize_transcript():
                 style_parts[7] = bold or style_parts[7]
                 style_parts[8] = italic or style_parts[8]
                 style_parts[15] = background or style_parts[15]
+                style_parts[18] = position or style_parts[18]
                 
                 lines[i] = ",".join(style_parts)
                 break  
@@ -258,15 +280,14 @@ def customize_transcript():
         background = str(background_var.get())
         print(f"background: {background_var}")
         
+        position = str(position_var.get())
+        print(f"bold: {position}")
 
-        modified_text = modifications_section(text, font_style, font_size, p_color, out_color, bold, italic, background)
+        modified_text = modifications_section(text, font_style, font_size, p_color, out_color, bold, italic, background, position)
 
         with open(ass_file, "w") as f:
             f.write(modified_text)
-            
-        print("Successfully modified")
-        # success_text = "Customizations applied"
-        # App.update_main_label(success_text)
+            print("Successfully modified")
 
     cancel_button = customtkinter.CTkButton(master=toplevel2, text="Cancel", fg_color="gray")
     cancel_button.grid(row=8, column=0, padx=5, pady=5)
