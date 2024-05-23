@@ -43,7 +43,6 @@ def add_subtitle_to_video():
     )
     
     if output_filename:
-        # Move the output video to the chosen location using shutil.move
         shutil.move(output_video, output_filename)
         print(f"Output video saved to: {output_filename}")
     else:
@@ -218,14 +217,20 @@ def customize_transcript():
         font_size = font_size_var.get()
         print(f"font size: {font_size}")
         
-        def convert_color_format(var):
-            color = var.replace('#', '&H')
-            return color
+        def hex_to_vb_color(hex_color):
+            
+            rr = hex_color[1:3]
+            gg = hex_color[3:5]
+            bb = hex_color[5:7]
+            vb_hex_color = f"&H{bb}{gg}{rr}"
+            
+            return vb_hex_color
         
-        p_color = convert_color_format(primary_color)
+        
+        p_color = hex_to_vb_color(primary_color)
         print(f"primary: {p_color}")
         
-        out_color = convert_color_format(outline_color)
+        out_color = hex_to_vb_color(outline_color)
         print(f"out color: {out_color}")
         
         bold = str(bold_var.get())
