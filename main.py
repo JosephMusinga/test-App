@@ -216,7 +216,7 @@ def customize_transcript():
                 style_parts[5] = out_color or style_parts[5] 
                 style_parts[7] = bold or style_parts[7]
                 style_parts[8] = italic or style_parts[8]
-                style_parts[16] = background or style_parts[16]
+                style_parts[15] = background or style_parts[15]
                 
                 lines[i] = ",".join(style_parts)
                 break  
