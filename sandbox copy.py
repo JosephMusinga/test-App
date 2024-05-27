@@ -1,16 +1,15 @@
-def convert_color_format(var):
-    """Replaces '#' with '&H' in the given color string.
+import customtkinter
 
-    Args:
-        var: The color string in hexadecimal format (e.g., '#636363').
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        self.grid_rowconfigure(0, weight=1)  # configure grid system
+        self.grid_columnconfigure(0, weight=1)
 
-    Returns:
-        A new string with '#' replaced by '&H'.
-    """
+        self.textbox = customtkinter.CTkTextbox(master=self, width=400, corner_radius=0)
+        self.textbox.grid(row=0, column=0, sticky="nsew")
+        self.textbox.insert("0.0", "Some example text!\n" * 50)
 
-    color = var.replace('#', '&H')  # Assign the replaced string back to color
-    return color
 
-new_color = '#636363'
-converted_color = convert_color_format(new_color)
-print(converted_color) 
+app = App()
+app.mainloop()

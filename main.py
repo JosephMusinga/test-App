@@ -297,14 +297,24 @@ def customize_transcript():
     
     
 def display_transcript(transcript_text):
-    # Create a Toplevel window
     toplevel = customtkinter.CTkToplevel()
     toplevel.geometry("500x400")
     toplevel.title("Transcript")
 
     # Create a text widget to display the transcript
-    transcript_label = customtkinter.CTkLabel(toplevel, text=transcript_text, text_color="white")
-    transcript_label.pack(padx=20, pady=20)
+    # transcript_label = customtkinter.CTkLabel(toplevel, text=transcript_text, text_color="white")
+    # transcript_label.pack(padx=20, pady=20)
+    
+    textbox = customtkinter.CTkTextbox(master=toplevel, width=500, height=350)
+    textbox.pack()
+    textbox.insert("0.0", transcript_text)
+    
+    #function to edit the transcript text
+    def modify_transcript_text():
+        pass
+    
+    save_button = customtkinter.CTkButton(master=toplevel, text="Save", command=modify_transcript_text)
+    save_button.pack()
 
     # Run the Toplevel window
     toplevel.mainloop()
