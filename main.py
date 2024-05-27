@@ -328,8 +328,39 @@ def display_transcript():
     #saving the edits
     def save_modified_transcript_text():
         edited_text = textbox.get("0.0", customtkinter.END)
+        
+        lines = edited_text.split('\n')
+        extracted_text = [line.split(' - ', 1)[1] if ' - ' in line else '' for line in lines]
 
+        
+        ass_file_path = ass_file  # replace with your file path
 
+        with open(ass_file_path, 'r') as file:
+            ass_file_content = file.read()
+
+        # Split the .ass file content into lines
+        ass_lines = ass_file_content.split('\n')
+
+        # Step 3: Replace dialogue lines
+        new_ass_lines = []
+        extracted_index = 0
+
+        for line in ass_lines:
+            if line.startswith('Dialogue:') and extracted_index < len(extracted_text):
+                parts = line.split(',', 9)
+                if len(parts) == 10:
+                    parts[9] = extracted_text[extracted_index]
+                    extracted_index += 1
+                new_ass_lines.append(','.join(parts))
+            else:
+                new_ass_lines.append(line)
+
+        new_ass_content = '\n'.join(new_ass_lines)
+
+        # Step 4: Write the updated content back to the .ass file
+        with open(ass_file_path, 'w') as file:
+            file.write(new_ass_content)
+            
     
     textbox = customtkinter.CTkTextbox(master=toplevel, width=500, height=350)
     textbox.configure(font=("Verdana",13))

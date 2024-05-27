@@ -1,70 +1,47 @@
 import re
 
-def extract_caption_segments(file_path):
-    """
-    Extracts time and text segments from the given .ass file and formats them.
-    
-    :param file_path: Path to the .ass file.
-    :return: List of tuples with formatted time and text.
-    """
-    def format_time(time_str):
-        """
-        Formats time from 'h:mm:ss.cs' to 'm:ss'.
-        """
-        parts = time_str.split(':')
-        hours = int(parts[0])
-        minutes = int(parts[1]) + hours * 60
-        seconds = float(parts[2])
-        return f'{minutes:.0f}:{seconds:.2f}'
+# Step 1: Extract parts of the lines after the hyphen
+text = """[0:0.00] - jos We equally reject attempts to prescribe new rights that are contrary to our values,
+[0:9.28] - norms, that aint it traditions and beliefs. We are not gays.
+[0:16.00] - Cooperation and respect for each other will advance the cause of human rights worldwide.
+[0:25.00] - Confrontation, vilification and double standards will not.
+[0:31.00] - Mr. President, self-determination and independence are intrinsic and fundamental rights
+[0:39.00] - that should be enjoyed by all people everywhere without distinction.
+[0:45.00] - We are deeply concerned by the continued denial of this basic right to the Sahara-Saharawi people.
+[0:54.00] - United Nations to expeditiously finalize what must be done to conclude the decolonization of the Western Sahara."""
 
-    output = []
-    
-    with open(file_path, 'r') as file:
-        for line in file:
-            if line.startswith("Dialogue:"):
-                match = re.match(r"Dialogue: \d,(\d+:\d+:\d+\.\d+),\d+:\d+:\d+\.\d+,Default,,\d,\d,\d,,(.*)", line)
-                if match:
-                    start_time = format_time(match.group(1))
-                    text = match.group(2).replace('\\N', ' ')  # Replace newlines in .ass with spaces
-                    output.append((start_time, text))
-                    
-    print(output)
-    return output
+# Extracting the text after the hyphen
+lines = text.split('\n')
+extracted_text = [line.split(' - ', 1)[1] if ' - ' in line else '' for line in lines]
 
-def update_ass_file(original_file, output_list, result_file):
-    """
-    Updates the text sections in the .ass file based on the output list from extract_caption_segments.
-    
-    :param original_file: Path to the original .ass file.
-    :param output_list: List of tuples with formatted time and text.
-    :param result_file: Path to the result .ass file.
-    """
-    with open(original_file, 'r') as file:
-        lines = file.readlines()
+# Step 2: Open and read the .ass file
+ass_file_path = 'sub-Mugabe1.en.ass'  # replace with your file path
 
-    event_section_started = False
-    dialogue_index = 0
+with open(ass_file_path, 'r') as file:
+    ass_file_content = file.read()
 
-    for i, line in enumerate(lines):
-        if line.startswith("[Events]"):
-            event_section_started = True
+# Split the .ass file content into lines
+ass_lines = ass_file_content.split('\n')
 
-        if event_section_started and line.startswith("Dialogue:"):
-            if dialogue_index < len(output_list):
-                time_text_pair = output_list[dialogue_index]
-                match = re.match(r"(Dialogue: \d,\d+:\d+:\d+\.\d+),\d+:\d+:\d+\.\d+,Default,,\d,\d,\d,,(.*)", line)
-                if match:
-                    start_part = match.group(1)
-                    new_text = time_text_pair[1]
-                    lines[i] = f"{start_part},{new_text}\n"
-                dialogue_index += 1
+# Step 3: Replace dialogue lines
+new_ass_lines = []
+extracted_index = 0
 
-    with open(result_file, 'w') as file:
-        file.writelines(lines)
+for line in ass_lines:
+    if line.startswith('Dialogue:') and extracted_index < len(extracted_text):
+        parts = line.split(',', 9)
+        if len(parts) == 10:
+            parts[9] = extracted_text[extracted_index]
+            extracted_index += 1
+        new_ass_lines.append(','.join(parts))
+    else:
+        new_ass_lines.append(line)
 
-# Usage
-file_path = 'sub-Mugabe1.en.ass'
-output_list = extract_caption_segments(file_path)
-update_ass_file(file_path, output_list, 'result.ass')
+new_ass_content = '\n'.join(new_ass_lines)
 
-print("The .ass file has been updated successfully!")
+# Step 4: Write the updated content back to the .ass file
+with open(ass_file_path, 'w') as file:
+    file.write(new_ass_content)
+
+# Optional: Print the updated .ass content to verify
+print(new_ass_content)
