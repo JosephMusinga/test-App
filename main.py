@@ -7,6 +7,7 @@ import subprocess
 import ffmpeg
 import whisper
 import tkinter
+import re
 
 
 def add_subtitle_to_video():
@@ -296,27 +297,48 @@ def customize_transcript():
     apply_modifications_button.grid(row=8, column=1, padx=5, pady=5, sticky="e")
     
     
-def display_transcript(transcript_text):
+def display_transcript():
     toplevel = customtkinter.CTkToplevel()
     toplevel.geometry("500x400")
     toplevel.title("Transcript")
 
-    # Create a text widget to display the transcript
-    # transcript_label = customtkinter.CTkLabel(toplevel, text=transcript_text, text_color="white")
-    # transcript_label.pack(padx=20, pady=20)
-    
-    textbox = customtkinter.CTkTextbox(master=toplevel, width=500, height=350)
-    textbox.pack()
-    textbox.insert("0.0", transcript_text)
-    
     #function to edit the transcript text
     def modify_transcript_text():
-        pass
+        
+        def format_time(time_str):
+            parts = time_str.split(':')
+            hours = int(parts[0])
+            minutes = int(parts[1]) + hours * 60
+            seconds = float(parts[2])
+            return f'{minutes:.0f}:{seconds:.2f}'
+
+        output = []
+        
+        with open(ass_file, 'r') as file:
+            for line in file:
+                if line.startswith("Dialogue:"):
+                    match = re.match(r"Dialogue: \d,(\d+:\d+:\d+\.\d+),\d+:\d+:\d+\.\d+,Default,,\d,\d,\d,,(.*)", line)
+                    if match:
+                        start_time = format_time(match.group(1))
+                        text = match.group(2).replace('\\N', ' ')  # Replace newlines in .ass with spaces
+                        output.append(f"[{start_time}] - {text}")
+        
+        return "\n".join(output)
     
-    save_button = customtkinter.CTkButton(master=toplevel, text="Save", command=modify_transcript_text)
+    #saving the edits
+    def save_modified_transcript_text():
+        edited_text = textbox.get("0.0", customtkinter.END)
+
+
+    
+    textbox = customtkinter.CTkTextbox(master=toplevel, width=500, height=350)
+    textbox.configure(font=("Verdana",13))
+    textbox.pack()
+    textbox.insert("0.0", modify_transcript_text())
+    
+    save_button = customtkinter.CTkButton(master=toplevel, text="Save", command=save_modified_transcript_text)
     save_button.pack()
 
-    # Run the Toplevel window
     toplevel.mainloop()
 
 
@@ -461,9 +483,7 @@ class App(customtkinter.CTk):
             return
 
         model = whisper.load_model("base")
-        # Get the result from transcribe method
         result = model.transcribe(audio_file)
-        # Extract segments from the result
         segments = result["segments"]  # Assuming segments are stored in the 'segments' key
         # Access language if available
         language = result.get("language", None)
@@ -481,11 +501,7 @@ class App(customtkinter.CTk):
         print(f"Transcript file generated: {subtitle_file}")
         self.main_label.configure(text="Transcript has been generated successfully")
 
-        # Print or display the transcript (modify as needed)
-        transcript_text = ""
-        for segment in segments:
-            transcript_text += f"[%.2fs -> %.2fs] {segment['text']}\n" % (segment["start"], segment["end"])
-        display_transcript(transcript_text) # Update label with transcript
+        display_transcript()
 
         return language, segments, self.copied_video
 
