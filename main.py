@@ -34,6 +34,8 @@ def add_subtitle_to_video():
         stream = ffmpeg.output(video_input_stream, output_video,
                                vf=f"subtitles={ass_file}")
         ffmpeg.run(stream, overwrite_output=True)
+        mainApp.add_captions_to_video_checkbox.select()
+        mainApp.main_label.configure(text="Process Complete")
         print("successfully added hard subtitles")
         
     #filedialog for exporting video   
@@ -224,8 +226,6 @@ def customize_transcript():
     position_segmented.grid(row=6, column=1, padx=5, pady=5)
     
     
-    
-    
     def modifications_section(text, font_style, font_size, p_color, out_color, bold, italic, background, position):
         
         lines = text.splitlines()
@@ -288,15 +288,25 @@ def customize_transcript():
 
         with open(ass_file, "w") as f:
             f.write(modified_text)
-            print("Successfully modified")
+            mainApp.customize_captions_checkbox.select()
+            mainApp.main_label.configure(text="Using Customized Caption Apperances")
+            print("Successfully Customized Captions")
+            toplevel2.destroy()
+            
+    def destroy_toplevel2():
+        toplevel2.destroy()
+        mainApp.customize_captions_checkbox.select()
+        mainApp.main_label.configure(text="Using Default Caption Apperances")
+        pass
+            
 
-    cancel_button = customtkinter.CTkButton(master=toplevel2, text="Cancel", fg_color="gray")
+    cancel_button = customtkinter.CTkButton(master=toplevel2, text="Use Defaults", fg_color="gray", command=destroy_toplevel2)
     cancel_button.grid(row=8, column=0, padx=5, pady=5)
 
     apply_modifications_button = customtkinter.CTkButton(master=toplevel2, text="Apply Changes", command=apply_changes) #
     apply_modifications_button.grid(row=8, column=1, padx=5, pady=5, sticky="e")
     
-    
+   
 def display_transcript():
     toplevel = customtkinter.CTkToplevel()
     toplevel.geometry("500x400")
@@ -360,15 +370,24 @@ def display_transcript():
         # Step 4: Write the updated content back to the .ass file
         with open(ass_file_path, 'w') as file:
             file.write(new_ass_content)
-            
+            toplevel.destroy()
+        
+        mainApp.main_label.configure(text="Using Edited Captions")    
     
     textbox = customtkinter.CTkTextbox(master=toplevel, width=500, height=350)
     textbox.configure(font=("Verdana",13))
-    textbox.pack()
+    textbox.grid(row=0, column=0, columnspan=2)
     textbox.insert("0.0", modify_transcript_text())
     
-    save_button = customtkinter.CTkButton(master=toplevel, text="Save", command=save_modified_transcript_text)
-    save_button.pack()
+    def destroy_toplevel():
+        toplevel.destroy()
+        mainApp.main_label.configure(text="Using Generated Captions")
+    
+    cancel_button = customtkinter.CTkButton(master=toplevel, text="Cancel", fg_color="gray", command=destroy_toplevel)
+    cancel_button.grid(row=1, column=0, padx=5, pady=5)
+    
+    save_button = customtkinter.CTkButton(master=toplevel, text="Save Changes", command=save_modified_transcript_text)
+    save_button.grid(row=1, column=1, padx=5, pady=5)
 
     toplevel.mainloop()
 
@@ -433,7 +452,7 @@ class App(customtkinter.CTk):
         self.open_file_button = customtkinter.CTkButton(self, text="Open File", command=self.open_file)
         self.open_file_button.grid(row=1, column=0, padx=20, pady=20, sticky="e")
         
-        self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray",state=tkinter.DISABLED)
         self.open_file_checkbox.grid(row=1, column=3)
 
         self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe)
@@ -470,8 +489,10 @@ class App(customtkinter.CTk):
                 # Overwrite existing file with shutil.move
                 shutil.copy(filepath, filename)
                 self.copied_video = filename
-                self.main_label.configure(text=f"You have selected: {filename}")  # Update main_label with filename
+                self.open_file_checkbox.select()
+                self.main_label.configure(text=f"You have selected: {filename}") 
                 print(f"File copied to: {filename}")
+                
             except Exception as e:  # Handle potential errors (optional)
                 self.main_label.configure(text="Error copying file")  # Update main_label with error message
                 print(f"Error copying file: {e}")
@@ -530,6 +551,7 @@ class App(customtkinter.CTk):
 
         subtitle_file = generate_subtitle_file(language, segments, self.copied_video)
         print(f"Transcript file generated: {subtitle_file}")
+        self.generate_transcript_checkbox.select()
         self.main_label.configure(text="Transcript has been generated successfully")
 
         display_transcript()
