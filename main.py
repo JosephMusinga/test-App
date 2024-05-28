@@ -384,6 +384,8 @@ def display_transcript():
     def destroy_toplevel():
         toplevel.destroy()
         mainApp.main_label.configure(text="Using Generated Captions")
+        mainApp.customize_captions_button.configure(state="normal")
+        
     
     cancel_button = customtkinter.CTkButton(master=toplevel, text="Cancel", fg_color="gray", command=destroy_toplevel)
     cancel_button.grid(row=1, column=0, padx=5, pady=5)
