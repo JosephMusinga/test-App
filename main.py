@@ -291,6 +291,7 @@ def customize_transcript():
             f.write(modified_text)
             mainApp.customize_captions_checkbox.select()
             mainApp.main_label.configure(text="Using Customized Caption Apperances")
+            mainApp.add_captions_to_video_button.configure(state="normal")
             print("Successfully Customized Captions")
             toplevel2.destroy()
             
@@ -298,7 +299,7 @@ def customize_transcript():
         toplevel2.destroy()
         mainApp.customize_captions_checkbox.select()
         mainApp.main_label.configure(text="Using Default Caption Apperances")
-        pass
+        mainApp.add_captions_to_video_button.configure(state="normal")
             
 
     cancel_button = customtkinter.CTkButton(master=toplevel2, text="Use Defaults", fg_color="gray", command=destroy_toplevel2)
@@ -456,22 +457,19 @@ class App(customtkinter.CTk):
         self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.open_file_checkbox.grid(row=1, column=3)
 
-        self.generate_transcript_button_state_var = "normal"
-        self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe, state=self.generate_transcript_button_state_var)
+        self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe, state="disabled")
         self.generate_transcript_button.grid(row=2, column=0, padx=20, pady=20, sticky="e")
         
         self.generate_transcript_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.generate_transcript_checkbox.grid(row=2, column=3)
         
-        self.customize_captions_button_state_var = "disabled"
-        self.customize_captions_button = customtkinter.CTkButton(self, text="Customize Appearance", command=customize_transcript, state=self.customize_captions_button_state_var)
+        self.customize_captions_button = customtkinter.CTkButton(self, text="Customize Appearance", command=customize_transcript, state="disabled")
         self.customize_captions_button.grid(row=3, column=0, padx=20, pady=20, sticky="e")
         
         self.customize_captions_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.customize_captions_checkbox.grid(row=3, column=3)
         
-        self.add_captions_to_video_button_state_var = "disabled"
-        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=add_subtitle_to_video, state=self.add_captions_to_video_button_state_var)
+        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=add_subtitle_to_video, state="disabled")
         self.add_captions_to_video_button.grid(row=4, column=0, padx=20, pady=20, sticky="e")
         
         self.add_captions_to_video_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
@@ -502,9 +500,7 @@ class App(customtkinter.CTk):
                 self.copied_video = filename
                 self.open_file_checkbox.select()
                 self.main_label.configure(text=f"You have selected: {filename}")
-                # self.activate_button(self.generate_transcript_button)
-                self.generate_transcript_button_state_var = "normal"
-                print(self.generate_transcript_button_state_var)
+                self.generate_transcript_button.configure(state="normal")
                 print(f"File copied to: {filename}")
                
                 
@@ -568,6 +564,7 @@ class App(customtkinter.CTk):
         print(f"Transcript file generated: {subtitle_file}")
         self.generate_transcript_checkbox.select()
         self.main_label.configure(text="Transcript has been generated successfully")
+        self.customize_captions_button.configure(state="normal")
 
         display_transcript()
 
