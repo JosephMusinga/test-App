@@ -10,6 +10,7 @@ import tkinter
 import re
 
 
+
 def add_subtitle_to_video():
     
     copied_video = mainApp.copied_video
@@ -441,40 +442,50 @@ class App(customtkinter.CTk):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.title("CAPTION GENERATOR")
+        self.title("VIDEO CAPTION GENERATOR")
         self.geometry("450x600")
         self.grid_columnconfigure((0, 1), weight=1)
         self.resizable(False, False)
         
-        self.main_label = customtkinter.CTkLabel(self, text="No item selected. Please select a video to start", text_color="white")
+        self.main_label = customtkinter.CTkLabel(self, text="No item selected. Please select a video to start")
         self.main_label.grid(row=0, column=0, padx=20, pady=50, columnspan=4 ,sticky="ew")
 
         self.open_file_button = customtkinter.CTkButton(self, text="Open File", command=self.open_file)
         self.open_file_button.grid(row=1, column=0, padx=20, pady=20, sticky="e")
         
-        self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray",state=tkinter.DISABLED)
+        self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.open_file_checkbox.grid(row=1, column=3)
 
-        self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe)
+        self.generate_transcript_button_state_var = "normal"
+        self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe, state=self.generate_transcript_button_state_var)
         self.generate_transcript_button.grid(row=2, column=0, padx=20, pady=20, sticky="e")
         
-        self.generate_transcript_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.generate_transcript_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.generate_transcript_checkbox.grid(row=2, column=3)
         
-        self.customize_captions_button = customtkinter.CTkButton(self, text="Customize Appearance", command=customize_transcript)
+        self.customize_captions_button_state_var = "disabled"
+        self.customize_captions_button = customtkinter.CTkButton(self, text="Customize Appearance", command=customize_transcript, state=self.customize_captions_button_state_var)
         self.customize_captions_button.grid(row=3, column=0, padx=20, pady=20, sticky="e")
         
-        self.customize_captions_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.customize_captions_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.customize_captions_checkbox.grid(row=3, column=3)
         
-        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=add_subtitle_to_video)
+        self.add_captions_to_video_button_state_var = "disabled"
+        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=add_subtitle_to_video, state=self.add_captions_to_video_button_state_var)
         self.add_captions_to_video_button.grid(row=4, column=0, padx=20, pady=20, sticky="e")
         
-        self.add_captions_to_video_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED)
+        self.add_captions_to_video_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.add_captions_to_video_checkbox.grid(row=4, column=3)
         
         self.toplevel_window = None
         self.copied_video = 'None' 
+    
+    
+    #activate button
+    def change_button_state(button):
+        activation = "normal"
+        button = activation
+    
         
     def open_file(self):
         filepath = customtkinter.filedialog.askopenfilename(
@@ -483,15 +494,19 @@ class App(customtkinter.CTk):
         )
 
         if filepath:
-            filename = os.path.basename(filepath)  # Extract filename
+            filename = os.path.basename(filepath)
 
             try:
                 # Overwrite existing file with shutil.move
                 shutil.copy(filepath, filename)
                 self.copied_video = filename
                 self.open_file_checkbox.select()
-                self.main_label.configure(text=f"You have selected: {filename}") 
+                self.main_label.configure(text=f"You have selected: {filename}")
+                # self.activate_button(self.generate_transcript_button)
+                self.generate_transcript_button_state_var = "normal"
+                print(self.generate_transcript_button_state_var)
                 print(f"File copied to: {filename}")
+               
                 
             except Exception as e:  # Handle potential errors (optional)
                 self.main_label.configure(text="Error copying file")  # Update main_label with error message
