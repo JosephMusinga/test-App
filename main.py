@@ -37,6 +37,7 @@ def add_subtitle_to_video():
         ffmpeg.run(stream, overwrite_output=True)
         mainApp.add_captions_to_video_checkbox.select()
         mainApp.main_label.configure(text="Process Complete")
+        mainApp.add_captions_to_video_button.configure(state="disabled")
         print("successfully added hard subtitles")
         
     #filedialog for exporting video   
@@ -179,9 +180,11 @@ def customize_transcript():
     def update_background_var(_=None):
         selected_value = background_segmented.get()
         if selected_value == "On":
+            outline_color_button.configure(state="normal")
             background_var.set(value=3)
         else:
             background_var.set(value=1)
+            outline_color_button.configure(state="disabled")
         print("Background:", selected_value, background_var)
     
     background_var = tkinter.IntVar()
@@ -203,7 +206,7 @@ def customize_transcript():
             outline_color = new_color  # Assign the returned color
             print(f"update check: {outline_color}")
     
-    outline_color_button = customtkinter.CTkButton(outline_frame, text="Pick Color", command=update_outline_color)
+    outline_color_button = customtkinter.CTkButton(outline_frame, text="Pick Color", state="disabled", command=update_outline_color)
     outline_color_button.grid(row=0, column=2, padx=5, pady=5)
     
     # Position Button
@@ -292,6 +295,7 @@ def customize_transcript():
             mainApp.customize_captions_checkbox.select()
             mainApp.main_label.configure(text="Using Customized Caption Apperances")
             mainApp.add_captions_to_video_button.configure(state="normal")
+            mainApp.customize_captions_button.configure(state="disabled")
             print("Successfully Customized Captions")
             toplevel2.destroy()
             
@@ -300,7 +304,8 @@ def customize_transcript():
         mainApp.customize_captions_checkbox.select()
         mainApp.main_label.configure(text="Using Default Caption Apperances")
         mainApp.add_captions_to_video_button.configure(state="normal")
-            
+        mainApp.customize_captions_button.configure(state="disabled")
+        
 
     cancel_button = customtkinter.CTkButton(master=toplevel2, text="Use Defaults", fg_color="gray", command=destroy_toplevel2)
     cancel_button.grid(row=8, column=0, padx=5, pady=5)
@@ -311,8 +316,16 @@ def customize_transcript():
    
 def display_transcript():
     toplevel = customtkinter.CTkToplevel()
-    toplevel.geometry("500x400")
     toplevel.title("Transcript")
+    
+    w = 500 
+    h = 400
+    
+    ws = toplevel.winfo_screenwidth() # width of the screen
+    hs = toplevel.winfo_screenheight()
+    x = (ws/2) - (w/2)
+    y = (hs/2) - (h/2)
+    toplevel.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     #function to edit the transcript text
     def modify_transcript_text():
@@ -450,10 +463,16 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure((0, 1), weight=1)
         self.resizable(False, False)
         
-        self.main_label = customtkinter.CTkLabel(self, text="No item selected. Please select a video to start")
-        self.main_label.grid(row=0, column=0, padx=20, pady=50, columnspan=4 ,sticky="ew")
+        self.label_frame = customtkinter.CTkFrame(self)
+        self.label_frame.grid(row=0, column=0, padx=20, pady=50, columnspan=4 ,sticky="ew")
+        
+        self.main_label = customtkinter.CTkLabel(self.label_frame, font=("Verdana",13), text="Select a video to start")
+        self.main_label.grid(row=0, column=1, padx=20, pady=50, sticky="ew")
+        
+        self.reset_button = customtkinter.CTkButton(self.label_frame, text="Reset", command=self.reset, width=8, fg_color="white", text_color="blue")
+        self.reset_button.grid(row=0, column=0, padx=20, pady=20)
 
-        self.open_file_button = customtkinter.CTkButton(self, text="Open File", command=self.open_file)
+        self.open_file_button = customtkinter.CTkButton(self, text="Open File", command=self.open_file, state="normal")
         self.open_file_button.grid(row=1, column=0, padx=20, pady=20, sticky="e")
         
         self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
@@ -480,7 +499,18 @@ class App(customtkinter.CTk):
         self.toplevel_window = None
         self.copied_video = 'None' 
     
-    
+    def reset(self):
+        self.main_label.configure(text="Reset! Select a video to start")
+        self.open_file_button.configure(state="normal")
+        self.open_file_checkbox.deselect()
+        self.generate_transcript_button.configure(state="disabled")
+        self.generate_transcript_checkbox.deselect()
+        self.customize_captions_button.configure(state="disabled")
+        self.customize_captions_checkbox.deselect()
+        self.add_captions_to_video_button.configure(state="disabled")
+        self.add_captions_to_video_checkbox.deselect()
+        
+        
     #activate button
     def change_button_state(button):
         activation = "normal"
@@ -503,6 +533,7 @@ class App(customtkinter.CTk):
                 self.open_file_checkbox.select()
                 self.main_label.configure(text=f"You have selected: {filename}")
                 self.generate_transcript_button.configure(state="normal")
+                self.open_file_button.configure(state="disabled")
                 print(f"File copied to: {filename}")
                
                 
@@ -567,6 +598,7 @@ class App(customtkinter.CTk):
         self.generate_transcript_checkbox.select()
         self.main_label.configure(text="Transcript has been generated successfully")
         self.customize_captions_button.configure(state="normal")
+        self.generate_transcript_button.configure(state="disabled")
 
         display_transcript()
 
