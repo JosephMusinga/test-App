@@ -9,7 +9,10 @@ import whisper
 import tkinter
 import re
 
-
+def update_label_then_add_subtitle_to_video():
+    mainApp.main_label.configure(text="Please wait a moment ...")
+    mainApp.update()
+    add_subtitle_to_video()
 
 def add_subtitle_to_video():
     
@@ -32,6 +35,7 @@ def add_subtitle_to_video():
         
     else:
         # Add hard subtitles
+        # mainApp.main_label.configure(text="Please wait a moment ...")
         stream = ffmpeg.output(video_input_stream, output_video,
                                vf=f"subtitles={ass_file}")
         ffmpeg.run(stream, overwrite_output=True)
@@ -466,7 +470,7 @@ class App(customtkinter.CTk):
         self.label_frame = customtkinter.CTkFrame(self)
         self.label_frame.grid(row=0, column=0, padx=20, pady=50, columnspan=4 ,sticky="ew")
         
-        self.main_label = customtkinter.CTkLabel(self.label_frame, font=("Verdana",13), text="Select a video to start")
+        self.main_label = customtkinter.CTkLabel(self.label_frame, font=("Verdana",15), text="Select a video to start")
         self.main_label.grid(row=0, column=1, padx=20, pady=50, sticky="ew")
         
         self.reset_button = customtkinter.CTkButton(self.label_frame, text="Reset", command=self.reset, width=8, fg_color="white", text_color="blue")
@@ -478,7 +482,7 @@ class App(customtkinter.CTk):
         self.open_file_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.open_file_checkbox.grid(row=1, column=3)
 
-        self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.transcribe, state="disabled")
+        self.generate_transcript_button = customtkinter.CTkButton(self, text="Generate Transcript", command=self.update_label_then_transcribe, state="disabled")
         self.generate_transcript_button.grid(row=2, column=0, padx=20, pady=20, sticky="e")
         
         self.generate_transcript_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
@@ -490,7 +494,7 @@ class App(customtkinter.CTk):
         self.customize_captions_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
         self.customize_captions_checkbox.grid(row=3, column=3)
         
-        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=add_subtitle_to_video, state="disabled")
+        self.add_captions_to_video_button = customtkinter.CTkButton(self, text="Add captions to video", command=update_label_then_add_subtitle_to_video, state="disabled")
         self.add_captions_to_video_button.grid(row=4, column=0, padx=20, pady=20, sticky="e")
         
         self.add_captions_to_video_checkbox = customtkinter.CTkCheckBox(self, text=None, border_color="gray", state=tkinter.DISABLED, fg_color="green")
@@ -566,6 +570,12 @@ class App(customtkinter.CTk):
             return None
 
         return extracted_audio
+    
+    def update_label_then_transcribe(self):
+        self.main_label.configure(text="Please wait a moment ...")
+        self.update()
+        self.transcribe()
+        
 
     def transcribe(self):
         audio_file = self.extract_audio()
@@ -577,7 +587,7 @@ class App(customtkinter.CTk):
         if not os.path.exists(audio_file):
             print("Error: Audio file does not exist.")
             return
-
+        
         model = whisper.load_model("base")
         result = model.transcribe(audio_file)
         segments = result["segments"]  # Assuming segments are stored in the 'segments' key
