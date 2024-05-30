@@ -180,6 +180,10 @@ def customize_transcript():
     outline_color_label = customtkinter.CTkLabel(outline_frame, text="Background:")
     outline_color_label.grid(row=0, column=0, padx=5, pady=5)
     
+    #Outline Button
+    global outline_color
+    outline_color = "&H0"
+    
     #Outline switch
     def update_background_var(_=None):
         selected_value = background_segmented.get()
@@ -188,6 +192,8 @@ def customize_transcript():
             background_var.set(value=3)
         else:
             background_var.set(value=1)
+            global outline_color
+            outline_color = "&H0"
             outline_color_button.configure(state="disabled")
         print("Background:", selected_value, background_var)
     
@@ -198,9 +204,6 @@ def customize_transcript():
     background_segmented.set("Off")
     background_segmented.grid(row=0, column=1, padx=5, pady=5)
     
-    #Outline Button
-    global outline_color
-    outline_color = "&H0"
     
     def update_outline_color():
         global outline_color
